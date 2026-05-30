@@ -1,0 +1,44 @@
+{
+  "name": "@2wav/markdown-track",
+  "version": "0.1.0",
+  "description": "A Vue 3 component suite to manage markdown file collaboration.",
+  "type": "module",
+  "license": "LGPL-3.0-or-later",
+  "author": "Anderson Wiese <anderson@2wav.io>",
+  "homepage": "https://github.com/anderson-2wav/markdown-track#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anderson-2wav/markdown-track.git"
+  },
+  "bugs": {
+    "url": "https://github.com/anderson-2wav/markdown-track/issues"
+  },
+  "keywords": ["vue", "vue3", "markdown", "collaboration", "editor", "component-library", "bold"],
+  "files": ["dist"],
+  "module": "./dist/markdown-track.js",
+  "main": "./dist/markdown-track.umd.cjs",
+  "exports": {
+    ".": {
+      "import": "./dist/markdown-track.js",
+      "require": "./dist/markdown-track.umd.cjs"
+    },
+    "./style.css": "./dist/markdown-track.css"
+  },
+  "sideEffects": ["**/*.css"],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "prepublishOnly": "npm run build",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "peerDependencies": {
+    "vue": "^3.4.0"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0",
+    "@vitejs/plugin-vue": "^5.1.0"
+  }
+}
