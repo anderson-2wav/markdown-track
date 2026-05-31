@@ -1,0 +1,64 @@
+/* Copyright (c) 2026 Anderson Wiese / 2wav, Inc. SPDX-License-Identifier: LGPL-3.0-or-later */
+
+/*
+ * markdown-track — minimal, override-friendly stylesheet.
+ *
+ * Every visual value is a CSS custom property under the `--mt-*` namespace, so a
+ * host application re-themes by redefining tokens on `.mt-root` (or any ancestor)
+ * rather than overriding rules. BEM class names; no Tailwind.
+ */
+
+.mt-root {
+  /* color tokens */
+  --mt-color-fg: #1f2328;
+  --mt-color-muted: #656d76;
+  --mt-color-bg: #ffffff;
+  --mt-color-border: #d0d7de;
+  --mt-color-accent: #0969da;
+
+  /* diff tokens (GitHub-ish; matches WILD's diff colors) */
+  --mt-diff-add-bg: #e6ffec;
+  --mt-diff-add-inline: #acf2bd;
+  --mt-diff-del-bg: #ffeef0;
+  --mt-diff-del-inline: #fdb8c0;
+
+  /* spacing / shape / type */
+  --mt-space: 0.75rem;
+  --mt-radius: 6px;
+  --mt-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --mt-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  color: var(--mt-color-fg);
+  background: var(--mt-color-bg);
+  font-family: var(--mt-font);
+}
+
+/* Library (Stage 1) */
+.mt-library {}
+.mt-library__item {}
+.mt-library__title {}
+
+/* Document view (Stage 2) */
+.mt-doc {}
+.mt-doc__title {}
+
+/* Editor (Stage 2) */
+.mt-editor {}
+.mt-editor__toolbar {}
+
+/* Timeline (Stage 3) */
+.mt-timeline {}
+
+/* Diff (Stage 4) */
+.mt-diff {}
+.mt-diff__line--added { background: var(--mt-diff-add-bg); }
+.mt-diff__line--removed { background: var(--mt-diff-del-bg); }
+
+/* Stage 0 placeholder */
+.mt-placeholder {
+  padding: calc(var(--mt-space) * 2);
+}
+.mt-placeholder__doc {
+  font-family: var(--mt-font-mono);
+  color: var(--mt-color-muted);
+}
