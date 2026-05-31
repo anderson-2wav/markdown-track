@@ -58,7 +58,12 @@ export const REQUIRED_HOOKS = Object.freeze([
  * versioning operations. This keeps the library free of git, Mongo, and
  * app-specific concerns.
  *
- * @param {MarkdownTrackHooks & { options?: object }} config
+ * Options (`config.options`):
+ *   - `editor`: `'v-md-editor'` (default — markdown source + live preview, no
+ *     round-trip, so it never rewrites non-standard markdown) or `'tiptap'`
+ *     (WYSIWYG; hides markdown syntax but is lossy on non-standard/nested markdown).
+ *
+ * @param {MarkdownTrackHooks & { options?: { editor?: 'tiptap'|'v-md-editor' } }} config
  * @returns {{ hooks: MarkdownTrackHooks, options: object }}
  */
 export function createMarkdownTrack(config = {}) {

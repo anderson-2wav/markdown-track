@@ -191,6 +191,14 @@
   fill: var(--mt-color-accent);
   stroke: var(--mt-color-accent);
 }
+/* "All changes" summary node: an outlined diamond (filled when selected). */
+.mt-timeline__point--summary .mt-timeline__dot {
+  fill: var(--mt-color-bg);
+  stroke: var(--mt-color-accent);
+}
+.mt-timeline__point--summary.is-selected .mt-timeline__dot {
+  fill: var(--mt-color-accent);
+}
 .mt-timeline__caption {
   display: flex;
   align-items: center;

@@ -4,7 +4,7 @@
 // renders them as a scrubbable timeline (Stage 3), and shows the selected
 // state read-only (with mermaid). Edit builds on the latest state; Save records
 // a new pending change. Diff (Stage 4) and Accept (Stage 5) build on this.
-import { ref, watch, onMounted, computed } from "vue";
+import { ref, watch, onMounted, computed, defineAsyncComponent } from "vue";
 import { useMarkdownTrack } from "../composables/useMarkdownTrack.js";
 import { extractTitle } from "../lib/title.js";
 import MarkdownRenderer from "./MarkdownRenderer.vue";
@@ -12,9 +12,19 @@ import MarkdownEditor from "./MarkdownEditor.vue";
 import ChangeTimeline from "./ChangeTimeline.vue";
 import DiffView from "./DiffView.vue";
 
+// v-md-editor and its theme/highlight.js deps are heavy; only load them when the
+// config actually selects that editor.
+const MarkdownEditorVMd = defineAsyncComponent(() => import("./MarkdownEditorVMd.vue"));
+
 const props = defineProps({ docId: { type: String, required: true } });
 const emit = defineEmits(["back"]);
-const { hooks } = useMarkdownTrack();
+const { hooks, options } = useMarkdownTrack();
+
+// Editor is config-selectable: 'v-md-editor' (default — markdown source + preview,
+// no round-trip) or 'tiptap' (WYSIWYG, but lossy on non-standard markdown).
+const EditorComponent = computed(() =>
+  options.editor === "tiptap" ? MarkdownEditor : MarkdownEditorVMd
+);
 
 const acceptedStates = ref([]);
 const pendingChanges = ref([]);
@@ -28,30 +38,57 @@ const selectedId = ref(null);
 const showDiff = ref(false);
 const confirmingAccept = ref(false);
 
-// Timeline points, left → right: accepted milestones then pending ticks.
-const points = computed(() => [
-  ...acceptedStates.value.map((s) => ({
-    id: s.id, kind: "accepted", at: s.acceptedAt, content: s.content,
-    label: "Accepted", author: s.acceptedBy,
-  })),
-  ...pendingChanges.value.map((c) => ({
-    id: c.id, kind: "pending", at: c.savedAt, content: c.content,
-    label: `Pending #${c.seq}`, author: c.author,
-  })),
-]);
+const latestAccepted = computed(() => acceptedStates.value[acceptedStates.value.length - 1] || null);
+const latestPending = computed(() => pendingChanges.value[pendingChanges.value.length - 1] || null);
+
+// Timeline points, left → right: accepted milestones, pending ticks, then a
+// synthetic "All changes" summary node (only when there are pending changes).
+const points = computed(() => {
+  const list = [
+    ...acceptedStates.value.map((s) => ({
+      id: s.id, kind: "accepted", at: s.acceptedAt, content: s.content,
+      label: "Accepted", author: s.acceptedBy,
+    })),
+    ...pendingChanges.value.map((c) => ({
+      id: c.id, kind: "pending", at: c.savedAt, content: c.content,
+      label: `Pending #${c.seq}`, author: c.author,
+    })),
+  ];
+  const latest = latestPending.value;
+  if (latest) {
+    list.push({
+      id: "all-changes", kind: "summary", at: latest.savedAt,
+      content: latest.content, label: "All changes", author: latest.author,
+    });
+  }
+  return list;
+});
 
 const selectedPoint = computed(
   () => points.value.find((p) => p.id === selectedId.value) || points.value[points.value.length - 1] || null
 );
 const viewedContent = computed(() => selectedPoint.value?.content ?? "");
-const latestAccepted = computed(() => acceptedStates.value[acceptedStates.value.length - 1] || null);
+
+// Diff baseline depends on the node: the "All changes" summary diffs against the
+// accepted baseline (cumulative); a regular node diffs against its predecessor
+// (the delta that revision introduced).
+const diffOldText = computed(() => {
+  const pt = selectedPoint.value;
+  if (!pt) return "";
+  if (pt.kind === "summary") return latestAccepted.value?.content ?? "";
+  const idx = points.value.findIndex((p) => p.id === pt.id);
+  return points.value[idx - 1]?.content ?? "";
+});
 const title = computed(() => extractTitle(latestAccepted.value?.content || "") || props.docId);
 const canEdit = computed(() => hooks.can("edit", { id: props.docId }));
 const canAccept = computed(() => hooks.can("accept", { id: props.docId }));
 const pendingCount = computed(() => pendingChanges.value.length);
 
 function selectLatest() {
-  selectedId.value = points.value[points.value.length - 1]?.id ?? null;
+  // Default to the "All changes" summary when present, else the latest point.
+  const pts = points.value;
+  const summary = pts.find((p) => p.kind === "summary");
+  selectedId.value = (summary ?? pts[pts.length - 1])?.id ?? null;
 }
 
 async function load() {
@@ -102,7 +139,7 @@ async function save() {
   try {
     const change = await hooks.savePendingChange(props.docId, { content: draft.value });
     pendingChanges.value = await hooks.listPendingChanges(props.docId);
-    selectedId.value = change.id;
+    selectLatest(); // back to the "All changes" summary
     savedNote.value = `Saved pending change (seq ${change.seq}).`;
     mode.value = "view";
   }
@@ -118,11 +155,13 @@ async function save() {
 // baseline (Stage 6 wires this to a git commit). Later pending changes rebase.
 async function accept() {
   const point = selectedPoint.value;
-  if (!point || point.kind !== "pending") return;
+  if (!point || (point.kind !== "pending" && point.kind !== "summary")) return;
+  // "All changes" accepts everything (up to the latest pending change).
+  const upToChangeId = point.kind === "summary" ? (latestPending.value?.id ?? null) : point.id;
   saving.value = true;
   error.value = "";
   try {
-    const state = await hooks.acceptChanges(props.docId, { upToChangeId: point.id });
+    const state = await hooks.acceptChanges(props.docId, { upToChangeId });
     const [acc, pend] = await Promise.all([
       hooks.listAcceptedStates(props.docId),
       hooks.listPendingChanges(props.docId),
@@ -166,7 +205,7 @@ async function accept() {
             @click="showDiff = !showDiff"
           >{{ showDiff ? "Hide changes" : "Show changes" }}</button>
           <button
-            v-if="canAccept && selectedPoint?.kind === 'pending'"
+            v-if="canAccept && (selectedPoint?.kind === 'pending' || selectedPoint?.kind === 'summary')"
             type="button"
             class="mt-editor__btn"
             @click="confirmingAccept = true"
@@ -197,13 +236,13 @@ async function accept() {
         />
         <DiffView
           v-if="showDiff"
-          :old-text="latestAccepted?.content || ''"
+          :old-text="diffOldText"
           :new-text="viewedContent"
         />
         <MarkdownRenderer v-else :content="viewedContent" />
       </template>
 
-      <MarkdownEditor v-else v-model="draft" />
+      <component :is="EditorComponent" v-else v-model="draft" />
     </template>
   </div>
 </template>

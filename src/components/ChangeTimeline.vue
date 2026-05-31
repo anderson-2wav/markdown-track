@@ -72,7 +72,13 @@ const fmt = (iso) => {
         @click="emit('select', p.id)"
       >
         <circle r="11" class="mt-timeline__hit" />
-        <circle :r="p.kind === 'accepted' ? 7 : 4.5" class="mt-timeline__dot" />
+        <rect
+          v-if="p.kind === 'summary'"
+          class="mt-timeline__dot"
+          x="-6.5" y="-6.5" width="13" height="13"
+          transform="rotate(45)"
+        />
+        <circle v-else :r="p.kind === 'accepted' ? 7 : 4.5" class="mt-timeline__dot" />
         <title>{{ p.label }} — {{ fmt(p.at) }}</title>
       </g>
     </svg>
