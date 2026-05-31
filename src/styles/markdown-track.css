@@ -103,6 +103,7 @@
   padding: 0.1rem 0.5rem;
 }
 .mt-doc__note { color: var(--mt-color-muted); font-size: 0.85rem; margin: 0; }
+.mt-doc__confirm { font-size: 0.85rem; color: var(--mt-color-fg); }
 
 /* Rendered markdown */
 .mt-markdown { line-height: 1.55; }

@@ -26,6 +26,7 @@ const saving = ref(false);
 const savedNote = ref("");
 const selectedId = ref(null);
 const showDiff = ref(false);
+const confirmingAccept = ref(false);
 
 // Timeline points, left → right: accepted milestones then pending ticks.
 const points = computed(() => [
@@ -46,6 +47,7 @@ const viewedContent = computed(() => selectedPoint.value?.content ?? "");
 const latestAccepted = computed(() => acceptedStates.value[acceptedStates.value.length - 1] || null);
 const title = computed(() => extractTitle(latestAccepted.value?.content || "") || props.docId);
 const canEdit = computed(() => hooks.can("edit", { id: props.docId }));
+const canAccept = computed(() => hooks.can("accept", { id: props.docId }));
 const pendingCount = computed(() => pendingChanges.value.length);
 
 function selectLatest() {
@@ -58,6 +60,7 @@ async function load() {
   mode.value = "view";
   savedNote.value = "";
   showDiff.value = false;
+  confirmingAccept.value = false;
   try {
     const [acc, pend] = await Promise.all([
       hooks.listAcceptedStates(props.docId),
@@ -77,12 +80,15 @@ async function load() {
 
 onMounted(load);
 watch(() => props.docId, load);
+// Selecting a different state cancels a pending Accept confirmation.
+watch(selectedId, () => { confirmingAccept.value = false; });
 
 function startEdit() {
   // Edit builds on the currently-selected state (latest by default).
   draft.value = selectedPoint.value?.content ?? "";
   savedNote.value = "";
   showDiff.value = false;
+  confirmingAccept.value = false;
   mode.value = "edit";
 }
 
@@ -107,6 +113,33 @@ async function save() {
     saving.value = false;
   }
 }
+
+// Promote pending changes up to the selected pending state into a new accepted
+// baseline (Stage 6 wires this to a git commit). Later pending changes rebase.
+async function accept() {
+  const point = selectedPoint.value;
+  if (!point || point.kind !== "pending") return;
+  saving.value = true;
+  error.value = "";
+  try {
+    const state = await hooks.acceptChanges(props.docId, { upToChangeId: point.id });
+    const [acc, pend] = await Promise.all([
+      hooks.listAcceptedStates(props.docId),
+      hooks.listPendingChanges(props.docId),
+    ]);
+    acceptedStates.value = acc;
+    pendingChanges.value = pend;
+    selectedId.value = state.id;
+    savedNote.value = "Accepted — new baseline established.";
+    confirmingAccept.value = false;
+  }
+  catch (e) {
+    error.value = e?.message || String(e);
+  }
+  finally {
+    saving.value = false;
+  }
+}
 </script>
 
 <template>
@@ -117,14 +150,29 @@ async function save() {
       <span class="mt-doc__spacer"></span>
       <span v-if="pendingCount" class="mt-doc__pending">{{ pendingCount }} pending</span>
       <template v-if="mode === 'view'">
-        <button
-          v-if="pendingCount"
-          type="button"
-          class="mt-editor__btn"
-          :class="{ 'is-active': showDiff }"
-          @click="showDiff = !showDiff"
-        >{{ showDiff ? "Hide changes" : "Show changes" }}</button>
-        <button v-if="canEdit" type="button" class="mt-editor__btn" @click="startEdit">Edit</button>
+        <template v-if="confirmingAccept">
+          <span class="mt-doc__confirm">Accept “{{ selectedPoint?.label }}” as the new baseline?</span>
+          <button type="button" class="mt-editor__btn" @click="confirmingAccept = false">Cancel</button>
+          <button type="button" class="mt-editor__btn is-active" :disabled="saving" @click="accept">
+            {{ saving ? "Accepting…" : "Confirm" }}
+          </button>
+        </template>
+        <template v-else>
+          <button
+            v-if="pendingCount"
+            type="button"
+            class="mt-editor__btn"
+            :class="{ 'is-active': showDiff }"
+            @click="showDiff = !showDiff"
+          >{{ showDiff ? "Hide changes" : "Show changes" }}</button>
+          <button
+            v-if="canAccept && selectedPoint?.kind === 'pending'"
+            type="button"
+            class="mt-editor__btn"
+            @click="confirmingAccept = true"
+          >Accept</button>
+          <button v-if="canEdit" type="button" class="mt-editor__btn" @click="startEdit">Edit</button>
+        </template>
       </template>
       <template v-else>
         <button type="button" class="mt-editor__btn" @click="cancel">Cancel</button>
