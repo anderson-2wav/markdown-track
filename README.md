@@ -1,39 +1,198 @@
 # Markdown Track
 
-A Vue 3 component suite to manage markdown file collaboration.
+A Vue 3 component suite for managing collaborative editing of markdown documents:
+a document library, a WYSIWYG / source editor, per-save **pending changes**, an
+**accepted-state timeline**, colorized **diffs**, and an authorized **Accept**
+workflow. Storage and identity are pluggable — you provide a small set of hooks,
+so the library stays free of any particular backend (git, a database, an API, …).
+
+> ⚠️ **Not yet published to npm.** The `@2wav/markdown-track` package name is
+> reserved but **not** on the public registry yet. Install from git for now
+> (see below). The API may change before the first published release.
 
 ## Install
 
+Once published:
+
 ```bash
-npm install @2wav/markdown-track vue
+npm install @2wav/markdown-track
 ```
 
-`vue` (^3.4) is a peer dependency — your app provides it.
+Until then, install from the repository:
 
-## Usage
+```bash
+npm install github:anderson-2wav/markdown-track
+```
+
+### Peer dependencies
+
+- **`vue`** (`^3.3`) — required; your app provides the single Vue instance.
+- **`mermaid`** (`^11`) — *optional*. Install it only if your documents use
+  ` ```mermaid ` blocks; it is dynamically imported and never loaded otherwise.
+
+```bash
+npm install vue
+npm install mermaid   # optional, for diagram rendering
+```
+
+TypeScript declarations are bundled (`index.d.ts`).
+
+## Concepts
+
+The library is **UI + a contract**. You implement a set of **hooks** that handle
+identity, access control, and document storage; the components call them. A
+document has:
+
+- an **accepted state** — the current canonical version (its history is the
+  accepted timeline), and
+- **pending changes** — each user save, in order, until someone with permission
+  **Accepts** them into a new accepted state.
+
+The included reference hooks keep everything in memory; a real deployment backs
+them with whatever you like.
+
+## Quick start
+
+```vue
+<!-- App.vue -->
+<script setup>
+import { ref } from "vue";
+import {
+  createMarkdownTrack,
+  provideMarkdownTrack,
+  createInMemoryHooks,
+  MarkdownLibrary,
+  DocumentView,
+} from "@2wav/markdown-track";
+import "@2wav/markdown-track/style.css";
+
+// Replace createInMemoryHooks(...) with your own hooks (see "The hooks contract").
+const config = createMarkdownTrack({
+  ...createInMemoryHooks({
+    documents: [
+      { id: "readme", filename: "README.md", content: "# Hello\n\nEdit me." },
+    ],
+  }),
+  options: { editor: "v-md-editor" }, // or "tiptap"
+});
+provideMarkdownTrack(config);
+
+const selectedId = ref(null);
+</script>
+
+<template>
+  <div class="mt-root">
+    <MarkdownLibrary v-if="!selectedId" @select="(id) => (selectedId = id)" />
+    <DocumentView v-else :doc-id="selectedId" @back="selectedId = null" />
+  </div>
+</template>
+```
+
+`provideMarkdownTrack` must run in an ancestor of the components (it uses Vue
+`provide`/`inject`). Inside descendants you can also call `useMarkdownTrack()` to
+read the config.
+
+## The hooks contract
+
+Pass an object implementing every hook to `createMarkdownTrack`. It throws if any
+are missing.
+
+| Hook | Signature | Purpose |
+|---|---|---|
+| `getCurrentUser` | `() => User` | The acting user. |
+| `can` | `(action, doc) => boolean` | Authorize `'view' \| 'edit' \| 'accept'`. |
+| `listDocuments` | `() => Promise<DocMeta[]>` | The library listing. |
+| `readAcceptedState` | `(docId) => Promise<AcceptedState>` | Current accepted version. |
+| `listAcceptedStates` | `(docId) => Promise<AcceptedState[]>` | Accepted history (oldest→newest). |
+| `listPendingChanges` | `(docId) => Promise<PendingChange[]>` | Pending changes since the last accept. |
+| `savePendingChange` | `(docId, { content }) => Promise<PendingChange>` | Record a save. |
+| `acceptChanges` | `(docId, { upToChangeId? }) => Promise<AcceptedState>` | Promote pending → new accepted state. |
+
+### Data shapes
+
+```ts
+interface User          { id: string; email?: string; name?: string }
+interface DocMeta       { id: string; filename: string; title?: string }
+interface AcceptedState { id: string; docId: string; content: string;
+                          acceptedBy: User; acceptedAt: string; ref: string }
+interface PendingChange { id: string; docId: string; content: string;
+                          author: User; savedAt: string; seq: number; baseRef?: string }
+```
+
+Notes:
+- `content` is **markdown** throughout (the source of truth).
+- `DocMeta.title` is optional; provide it (e.g. the document's lone top-level
+  `#` heading) and the library shows it, otherwise it falls back to `filename`.
+  The `extractTitle(markdown)` helper is exported for this.
+- `acceptChanges` with `upToChangeId` accepts up to a specific pending change and
+  rebases any later ones; without it, it accepts everything.
+
+## Components
+
+| Component | Props | Emits | Notes |
+|---|---|---|---|
+| `MarkdownLibrary` | — | `select(docId)` | Lists viewable documents. |
+| `DocumentView` | `docId: string` | `back` | The full editor: read view, editor, timeline, diff, Accept. |
+| `MarkdownRenderer` | `content?: string` | — | Read-only render (marked + optional mermaid). |
+| `MarkdownEditor` | `modelValue?: string` (v-model) | `update:modelValue` | TipTap WYSIWYG editor. |
+| `ChangeTimeline` | `points`, `selectedId` | `select(id)` | The accepted/pending timeline. |
+| `DiffView` | `oldText?`, `newText?` | — | Unified colorized diff. |
+
+Most apps only need `MarkdownLibrary` + `DocumentView`; the others are exposed for
+custom layouts.
+
+## Editor selection
+
+`options.editor` chooses the editing experience:
+
+- **`'v-md-editor'`** *(default)* — markdown source + live preview. Faithful: it
+  never rewrites your markdown, so non-standard / nested constructs survive
+  exactly. Built on [`@kangc/v-md-editor`](https://www.npmjs.com/package/@kangc/v-md-editor).
+- **`'tiptap'`** — true WYSIWYG (hides markdown syntax). Convenient for
+  non-technical authors, but its markdown round-trip can normalize/rewrite
+  unusual markdown. Built on [TipTap](https://tiptap.dev).
+
+## Styling
+
+Import the stylesheet once:
 
 ```js
-import { /* components */ } from "@2wav/markdown-track";
 import "@2wav/markdown-track/style.css";
 ```
 
-> Components are added to the public entry (`src/index.js`) as they are built.
+All visuals are driven by CSS custom properties under the `--mt-*` namespace, so
+you re-theme by redefining tokens on `.mt-root` (or any ancestor) — no rule
+overrides needed:
 
-## Develop
-
-```bash
-npm install        # install dev deps (Vite, @vitejs/plugin-vue)
-npm run dev        # Vite dev server
-npm run build      # library build -> dist/ (ESM + UMD + CSS)
+```css
+.mt-root {
+  --mt-color-accent: #6d28d9;
+  --mt-color-fg: #1f2328;
+  --mt-color-border: #d0d7de;
+  --mt-radius: 8px;
+  /* …see the stylesheet for the full token list */
+}
 ```
 
-`npm run build` produces `dist/markdown-track.js` (ESM), `dist/markdown-track.umd.cjs`
-(UMD), and `dist/markdown-track.css`. `dist/` is gitignored and built on publish
-(`prepublishOnly`).
+Class names are BEM (`.mt-library`, `.mt-doc__title`, `.mt-diff__line--added`, …).
+No Tailwind.
+
+## Development
+
+```bash
+npm install      # dev tooling (Vite, @vitejs/plugin-vue, jsdom)
+npm test         # unit tests (node --test)
+npm run build    # build dist/ (ESM + CJS + extracted CSS)
+```
+
+`npm run build` (via `vite.lib.config.mjs`) externalizes all third-party deps and
+emits `dist/markdown-track.js` (ESM), `dist/markdown-track.cjs` (CJS), and
+`dist/markdown-track.css`. The built `dist/` is committed so the package can be
+consumed directly from git without a build step.
 
 ## License
 
-Licensed under the **GNU Lesser General Public License v3.0 or later** (LGPL-3.0-or-later).
-See [`LICENSE`](./LICENSE).
+Licensed under the **GNU Lesser General Public License v3.0 or later**
+(LGPL-3.0-or-later). See [`LICENSE`](./LICENSE).
 
 Copyright © 2026 Anderson Wiese / 2wav, Inc.
