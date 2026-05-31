@@ -4,6 +4,9 @@
 // UI components are re-exported here as they are built (Stage 1+).
 
 export { default as MarkdownLibrary } from "./components/MarkdownLibrary.vue";
+export { default as DocumentView } from "./components/DocumentView.vue";
+export { default as MarkdownRenderer } from "./components/MarkdownRenderer.vue";
+export { default as MarkdownEditor } from "./components/MarkdownEditor.vue";
 
 export { createMarkdownTrack, REQUIRED_HOOKS } from "./config/createMarkdownTrack.js";
 export { createInMemoryHooks } from "./config/inMemoryHooks.js";

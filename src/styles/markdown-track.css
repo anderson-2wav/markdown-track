@@ -81,12 +81,87 @@
 }
 
 /* Document view (Stage 2) */
-.mt-doc {}
-.mt-doc__title {}
+.mt-doc {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mt-space);
+  padding: calc(var(--mt-space) * 1.5);
+  max-width: 52rem;
+}
+.mt-doc__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.mt-doc__spacer { flex: 1; }
+.mt-doc__title { margin: 0; font-size: 1.15rem; font-weight: 600; }
+.mt-doc__pending {
+  font-size: 0.8rem;
+  color: var(--mt-color-muted);
+  border: 1px solid var(--mt-color-border);
+  border-radius: 999px;
+  padding: 0.1rem 0.5rem;
+}
+.mt-doc__note { color: var(--mt-color-muted); font-size: 0.85rem; margin: 0; }
+
+/* Rendered markdown */
+.mt-markdown { line-height: 1.55; }
+.mt-markdown h1 { font-size: 1.6rem; }
+.mt-markdown h2 { font-size: 1.3rem; }
+.mt-markdown pre {
+  background: #f6f8fa;
+  border-radius: var(--mt-radius);
+  padding: var(--mt-space);
+  overflow: auto;
+}
+.mt-markdown code { font-family: var(--mt-font-mono); font-size: 0.9em; }
+.mt-markdown .mermaid { margin: var(--mt-space) 0; }
 
 /* Editor (Stage 2) */
-.mt-editor {}
-.mt-editor__toolbar {}
+.mt-editor {
+  border: 1px solid var(--mt-color-border);
+  border-radius: var(--mt-radius);
+  overflow: hidden;
+}
+.mt-editor__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.4rem;
+  border-bottom: 1px solid var(--mt-color-border);
+  background: #f6f8fa;
+}
+.mt-editor__spacer { flex: 1; }
+.mt-editor__btn {
+  font: inherit;
+  font-size: 0.85rem;
+  line-height: 1;
+  padding: 0.35rem 0.55rem;
+  background: var(--mt-color-bg);
+  color: var(--mt-color-fg);
+  border: 1px solid var(--mt-color-border);
+  border-radius: var(--mt-radius);
+  cursor: pointer;
+}
+.mt-editor__btn:hover { border-color: var(--mt-color-accent); }
+.mt-editor__btn.is-active {
+  border-color: var(--mt-color-accent);
+  color: var(--mt-color-accent);
+}
+.mt-editor__btn:disabled { opacity: 0.5; cursor: default; }
+.mt-editor__content { padding: var(--mt-space); }
+.mt-editor__content :deep(.ProseMirror) { outline: none; min-height: 12rem; }
+.mt-editor__content :deep(.ProseMirror:focus) { outline: none; }
+.mt-editor__source {
+  display: block;
+  width: 100%;
+  min-height: 14rem;
+  border: 0;
+  padding: var(--mt-space);
+  font-family: var(--mt-font-mono);
+  font-size: 0.85rem;
+  resize: vertical;
+}
 
 /* Timeline (Stage 3) */
 .mt-timeline {}
