@@ -8,6 +8,7 @@ export { default as DocumentView } from "./components/DocumentView.vue";
 export { default as MarkdownRenderer } from "./components/MarkdownRenderer.vue";
 export { default as MarkdownEditor } from "./components/MarkdownEditor.vue";
 export { default as ChangeTimeline } from "./components/ChangeTimeline.vue";
+export { default as DiffView } from "./components/DiffView.vue";
 
 export { createMarkdownTrack, REQUIRED_HOOKS } from "./config/createMarkdownTrack.js";
 export { createInMemoryHooks } from "./config/inMemoryHooks.js";

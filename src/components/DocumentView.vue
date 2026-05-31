@@ -10,6 +10,7 @@ import { extractTitle } from "../lib/title.js";
 import MarkdownRenderer from "./MarkdownRenderer.vue";
 import MarkdownEditor from "./MarkdownEditor.vue";
 import ChangeTimeline from "./ChangeTimeline.vue";
+import DiffView from "./DiffView.vue";
 
 const props = defineProps({ docId: { type: String, required: true } });
 const emit = defineEmits(["back"]);
@@ -24,6 +25,7 @@ const draft = ref("");
 const saving = ref(false);
 const savedNote = ref("");
 const selectedId = ref(null);
+const showDiff = ref(false);
 
 // Timeline points, left → right: accepted milestones then pending ticks.
 const points = computed(() => [
@@ -55,6 +57,7 @@ async function load() {
   error.value = "";
   mode.value = "view";
   savedNote.value = "";
+  showDiff.value = false;
   try {
     const [acc, pend] = await Promise.all([
       hooks.listAcceptedStates(props.docId),
@@ -79,6 +82,7 @@ function startEdit() {
   // Edit builds on the currently-selected state (latest by default).
   draft.value = selectedPoint.value?.content ?? "";
   savedNote.value = "";
+  showDiff.value = false;
   mode.value = "edit";
 }
 
@@ -113,6 +117,13 @@ async function save() {
       <span class="mt-doc__spacer"></span>
       <span v-if="pendingCount" class="mt-doc__pending">{{ pendingCount }} pending</span>
       <template v-if="mode === 'view'">
+        <button
+          v-if="pendingCount"
+          type="button"
+          class="mt-editor__btn"
+          :class="{ 'is-active': showDiff }"
+          @click="showDiff = !showDiff"
+        >{{ showDiff ? "Hide changes" : "Show changes" }}</button>
         <button v-if="canEdit" type="button" class="mt-editor__btn" @click="startEdit">Edit</button>
       </template>
       <template v-else>
@@ -136,7 +147,12 @@ async function save() {
           :selected-id="selectedPoint?.id"
           @select="(id) => (selectedId = id)"
         />
-        <MarkdownRenderer :content="viewedContent" />
+        <DiffView
+          v-if="showDiff"
+          :old-text="latestAccepted?.content || ''"
+          :new-text="viewedContent"
+        />
+        <MarkdownRenderer v-else :content="viewedContent" />
       </template>
 
       <MarkdownEditor v-else v-model="draft" />

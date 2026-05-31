@@ -200,9 +200,38 @@
 .mt-timeline__label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* Diff (Stage 4) */
-.mt-diff {}
+.mt-diff {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.mt-diff__stats { display: flex; gap: 0.5rem; font-family: var(--mt-font-mono); font-size: 0.8rem; }
+.mt-diff__stat--added { color: #1a7f37; }
+.mt-diff__stat--removed { color: #cf222e; }
+.mt-diff__body {
+  margin: 0;
+  border: 1px solid var(--mt-color-border);
+  border-radius: var(--mt-radius);
+  overflow: auto;
+  font-family: var(--mt-font-mono);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  white-space: pre;
+  tab-size: 2;
+}
+.mt-diff__line { display: block; }
 .mt-diff__line--added { background: var(--mt-diff-add-bg); }
 .mt-diff__line--removed { background: var(--mt-diff-del-bg); }
+.mt-diff__gutter {
+  display: inline-block;
+  width: 1.5rem;
+  text-align: center;
+  color: var(--mt-color-muted);
+  user-select: none;
+}
+.mt-diff__line--added .mt-diff__gutter { color: #1a7f37; }
+.mt-diff__line--removed .mt-diff__gutter { color: #cf222e; }
+.mt-diff__text { white-space: pre-wrap; }
 
 /* Stage 0 placeholder */
 .mt-placeholder {
