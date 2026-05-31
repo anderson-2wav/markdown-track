@@ -1,4 +1,5 @@
 // Copyright (c) 2026 Anderson Wiese / 2wav, Inc. SPDX-License-Identifier: LGPL-3.0-or-later
+import { extractTitle } from "../lib/title.js";
 
 /**
  * In-memory reference implementation of the markdown-track hooks (§3.2).
@@ -52,7 +53,11 @@ export function createInMemoryHooks(seed = {}) {
 
     can: (action, doc) => canFn(action, doc, user),
 
-    listDocuments: async () => [...docs.values()].map((d) => clone(d)),
+    listDocuments: async () =>
+      [...docs.values()].map((d) => {
+        const content = lastAccepted(d.id)?.content ?? "";
+        return clone({ ...d, title: extractTitle(content) ?? undefined });
+      }),
 
     readAcceptedState: async (docId) => {
       const acc = lastAccepted(docId);

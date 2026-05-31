@@ -15,6 +15,7 @@
   --mt-color-bg: #ffffff;
   --mt-color-border: #d0d7de;
   --mt-color-accent: #0969da;
+  --mt-color-error: #b35900;
 
   /* diff tokens (GitHub-ish; matches WILD's diff colors) */
   --mt-diff-add-bg: #e6ffec;
@@ -34,9 +35,50 @@
 }
 
 /* Library (Stage 1) */
-.mt-library {}
-.mt-library__item {}
-.mt-library__title {}
+.mt-library {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mt-space);
+  padding: calc(var(--mt-space) * 1.5);
+  max-width: 48rem;
+}
+.mt-library__heading {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.mt-library__status { color: var(--mt-color-muted); }
+.mt-library__status--error { color: var(--mt-color-error); }
+.mt-library__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.mt-library__link {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 1px solid var(--mt-color-border);
+  border-radius: var(--mt-radius);
+  padding: var(--mt-space);
+  cursor: pointer;
+}
+.mt-library__link:hover { border-color: var(--mt-color-accent); }
+.mt-library__title { font-weight: 600; }
+.mt-library__filename {
+  font-family: var(--mt-font-mono);
+  font-size: 0.8rem;
+  color: var(--mt-color-muted);
+}
 
 /* Document view (Stage 2) */
 .mt-doc {}

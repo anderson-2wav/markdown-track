@@ -3,6 +3,8 @@
 // Public entry point for @2wav/markdown-track.
 // UI components are re-exported here as they are built (Stage 1+).
 
+export { default as MarkdownLibrary } from "./components/MarkdownLibrary.vue";
+
 export { createMarkdownTrack, REQUIRED_HOOKS } from "./config/createMarkdownTrack.js";
 export { createInMemoryHooks } from "./config/inMemoryHooks.js";
 export { provideMarkdownTrack, useMarkdownTrack } from "./composables/useMarkdownTrack.js";
