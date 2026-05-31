@@ -1,5 +1,11 @@
 // Copyright (c) 2026 Anderson Wiese / 2wav, Inc. SPDX-License-Identifier: LGPL-3.0-or-later
 import { marked } from "marked";
+import { gfmHeadingId } from "marked-gfm-heading-id";
+
+// Add GitHub-style `id` slugs to rendered headings (lowercase, punctuation
+// stripped, spaces→hyphens, de-duped) so in-document Table-of-Contents anchor
+// links — e.g. [I. …](#i-priority-list) — resolve to their headings.
+marked.use(gfmHeadingId());
 
 /**
  * Render markdown to HTML for read-only views (matches WILD's renderer).

@@ -35,11 +35,14 @@
     "test": "node --test"
   },
   "dependencies": {
+    "@kangc/v-md-editor": "^2.3.18",
     "@tiptap/vue-3": "^2.5.1",
     "@tiptap/starter-kit": "^2.5.1",
     "@tiptap/extension-link": "^2.5.1",
     "tiptap-markdown": "^0.8.10",
     "marked": "^16.4.1",
+    "marked-gfm-heading-id": "^4.1.4",
+    "highlight.js": "^11.11.1",
     "diff": "^8.0.3",
     "d3-scale": "^4.0.2"
   },
