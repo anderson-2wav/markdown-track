@@ -1,7 +1,11 @@
 // Copyright (c) 2026 Anderson Wiese / 2wav, Inc. SPDX-License-Identifier: LGPL-3.0-or-later
 
 // Public entry point for @2wav/markdown-track.
-// UI components are re-exported here as they are built (Stage 1+).
+
+// The stylesheet is pulled into the build graph so the lib build extracts it to
+// dist/markdown-track.css (consumed via "@2wav/markdown-track/style.css"). The
+// built bundle does NOT auto-inject it — consumers import the CSS explicitly.
+import "./styles/markdown-track.css";
 
 export { default as MarkdownLibrary } from "./components/MarkdownLibrary.vue";
 export { default as DocumentView } from "./components/DocumentView.vue";

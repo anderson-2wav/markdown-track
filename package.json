@@ -14,13 +14,15 @@
     "url": "https://github.com/anderson-2wav/markdown-track/issues"
   },
   "keywords": ["vue", "vue3", "markdown", "collaboration", "editor", "component-library", "bold"],
-  "files": ["dist"],
+  "files": ["dist", "index.d.ts"],
   "module": "./dist/markdown-track.js",
-  "main": "./dist/markdown-track.umd.cjs",
+  "main": "./dist/markdown-track.cjs",
+  "types": "./index.d.ts",
   "exports": {
     ".": {
+      "types": "./index.d.ts",
       "import": "./dist/markdown-track.js",
-      "require": "./dist/markdown-track.umd.cjs"
+      "require": "./dist/markdown-track.cjs"
     },
     "./style.css": "./dist/markdown-track.css"
   },
@@ -56,8 +58,8 @@
     }
   },
   "devDependencies": {
-    "vite": "^5.4.0",
-    "@vitejs/plugin-vue": "^5.1.0",
+    "vite": "^6.0.0",
+    "@vitejs/plugin-vue": "^5.2.0",
     "jsdom": "^29.0.0"
   }
 }
