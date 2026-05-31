@@ -164,7 +164,40 @@
 }
 
 /* Timeline (Stage 3) */
-.mt-timeline {}
+.mt-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  border: 1px solid var(--mt-color-border);
+  border-radius: var(--mt-radius);
+  padding: 0.25rem 0.5rem 0.5rem;
+}
+.mt-timeline__svg { display: block; width: 100%; }
+.mt-timeline__track {
+  stroke: var(--mt-color-border);
+  stroke-width: 2;
+}
+.mt-timeline__point { cursor: pointer; }
+.mt-timeline__hit { fill: transparent; }
+.mt-timeline__dot {
+  fill: var(--mt-color-bg);
+  stroke: var(--mt-color-muted);
+  stroke-width: 2;
+}
+.mt-timeline__point--accepted .mt-timeline__dot { fill: var(--mt-color-muted); }
+.mt-timeline__point:hover .mt-timeline__dot { stroke: var(--mt-color-accent); }
+.mt-timeline__point.is-selected .mt-timeline__dot {
+  fill: var(--mt-color-accent);
+  stroke: var(--mt-color-accent);
+}
+.mt-timeline__caption {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: var(--mt-color-muted);
+}
+.mt-timeline__label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* Diff (Stage 4) */
 .mt-diff {}
