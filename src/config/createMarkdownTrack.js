@@ -71,8 +71,11 @@ export const OPTIONAL_HOOKS = Object.freeze(["onEvent"]);
  *     (WYSIWYG; hides markdown syntax but is lossy on non-standard/nested markdown).
  *   - `library`: optional host-supplied identifier for this library instance,
  *     surfaced on every `onEvent` payload (handy when one host runs several).
+ *   - `hideHistoryBefore`: optional cutoff (Date | ISO string | epoch ms). Hides
+ *     all timeline history dated before it, so the timeline starts at the version
+ *     you want to show. Inclusive; applies to every document; data is untouched.
  *
- * @param {MarkdownTrackHooks & { options?: { editor?: 'tiptap'|'v-md-editor', library?: string } }} config
+ * @param {MarkdownTrackHooks & { options?: { editor?: 'tiptap'|'v-md-editor', library?: string, hideHistoryBefore?: Date|string|number } }} config
  * @returns {{ hooks: MarkdownTrackHooks, options: object }}
  */
 export function createMarkdownTrack(config = {}) {

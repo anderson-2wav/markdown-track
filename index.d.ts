@@ -74,6 +74,14 @@ export interface MarkdownTrackOptions {
   editor?: "v-md-editor" | "tiptap";
   /** Optional identifier for this library instance, surfaced on every TrackEvent. */
   library?: string;
+  /**
+   * Hide all timeline history (accepted states and pending changes) dated before
+   * this cutoff, so a document's timeline begins at the version you want to show.
+   * Accepts a Date, an ISO-8601 string, or an epoch-millisecond number. Inclusive:
+   * items dated exactly at the cutoff are kept. Applies to every document. The
+   * underlying data is untouched — only what the timeline renders is filtered.
+   */
+  hideHistoryBefore?: Date | string | number;
 }
 
 /** Lifecycle action constants (values match TrackEventAction). */

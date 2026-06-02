@@ -210,6 +210,32 @@ custom layouts.
   non-technical authors, but its markdown round-trip can normalize/rewrite
   unusual markdown. Built on [TipTap](https://tiptap.dev).
 
+## Hiding early history
+
+Set `options.hideHistoryBefore` to a cutoff date to drop everything in the
+timeline (accepted states **and** pending changes) from before it — so a
+document opens at the version you want to show, with the original authoring steps
+hidden:
+
+```js
+const config = createMarkdownTrack({
+  ...yourHooks,
+  options: {
+    // Hide every revision before this point. Date | ISO string | epoch ms.
+    hideHistoryBefore: "2026-05-01T00:00:00Z",
+  },
+});
+```
+
+- Accepts a `Date`, an ISO-8601 string, or an epoch-millisecond number.
+- **Inclusive** — a revision dated exactly at the cutoff is kept, so you can pass
+  the timestamp of the first version you want shown.
+- Applies to **every** document (one cutoff for the whole library, for now).
+- **Presentation only.** The underlying data is untouched; this filters what the
+  timeline renders, it does not delete or alter any accepted state or pending
+  change. It is not an access control — pair it with your `can`/storage hooks if
+  earlier content must be truly unavailable.
+
 ## Styling
 
 Import the stylesheet once:

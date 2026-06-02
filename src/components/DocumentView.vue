@@ -7,6 +7,7 @@
 import { ref, watch, onMounted, onBeforeUnmount, computed, defineAsyncComponent } from "vue";
 import { useMarkdownTrack } from "../composables/useMarkdownTrack.js";
 import { emitTrackEvent, TRACK_EVENTS } from "../lib/events.js";
+import { makeCutoffFilter } from "../lib/history.js";
 import { extractTitle } from "../lib/title.js";
 import MarkdownRenderer from "./MarkdownRenderer.vue";
 import MarkdownEditor from "./MarkdownEditor.vue";
@@ -40,18 +41,29 @@ const selectedId = ref(null);
 const showDiff = ref(false);
 const confirmingAccept = ref(false);
 
-const latestAccepted = computed(() => acceptedStates.value[acceptedStates.value.length - 1] || null);
-const latestPending = computed(() => pendingChanges.value[pendingChanges.value.length - 1] || null);
+// History visibility: a host can hide everything before a cutoff date
+// (options.hideHistoryBefore) so the timeline starts at the version it wants to
+// show. The underlying data is untouched — only what we render is filtered.
+const cutoffFilter = computed(() => makeCutoffFilter(options.hideHistoryBefore));
+const visibleAccepted = computed(() =>
+  acceptedStates.value.filter((s) => cutoffFilter.value(s.acceptedAt))
+);
+const visiblePending = computed(() =>
+  pendingChanges.value.filter((c) => cutoffFilter.value(c.savedAt))
+);
+
+const latestAccepted = computed(() => visibleAccepted.value[visibleAccepted.value.length - 1] || null);
+const latestPending = computed(() => visiblePending.value[visiblePending.value.length - 1] || null);
 
 // Timeline points, left → right: accepted milestones, pending ticks, then a
 // synthetic "All changes" summary node (only when there are pending changes).
 const points = computed(() => {
   const list = [
-    ...acceptedStates.value.map((s) => ({
+    ...visibleAccepted.value.map((s) => ({
       id: s.id, kind: "accepted", at: s.acceptedAt, content: s.content,
       label: "Accepted", author: s.acceptedBy,
     })),
-    ...pendingChanges.value.map((c) => ({
+    ...visiblePending.value.map((c) => ({
       id: c.id, kind: "pending", at: c.savedAt, content: c.content,
       label: `Pending #${c.seq}`, author: c.author,
     })),
@@ -84,7 +96,7 @@ const diffOldText = computed(() => {
 const title = computed(() => extractTitle(latestAccepted.value?.content || "") || props.docId);
 const canEdit = computed(() => hooks.can("edit", { id: props.docId }));
 const canAccept = computed(() => hooks.can("accept", { id: props.docId }));
-const pendingCount = computed(() => pendingChanges.value.length);
+const pendingCount = computed(() => visiblePending.value.length);
 
 // Download the currently-selected state (accepted / a pending change / the
 // "All changes" summary) as a markdown file, named to reflect that state.
