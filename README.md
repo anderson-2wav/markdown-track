@@ -132,7 +132,7 @@ Notes:
 | Component | Props | Emits | Notes |
 |---|---|---|---|
 | `MarkdownLibrary` | — | `select(docId)` | Lists viewable documents. |
-| `DocumentView` | `docId: string` | `back` | The full editor: read view, editor, timeline, diff, Accept. |
+| `DocumentView` | `docId: string` | `back` | The full editor: read view, editor, timeline, per-state **download**, diff, Accept. |
 | `MarkdownRenderer` | `content?: string` | — | Read-only render (marked + optional mermaid). |
 | `MarkdownEditor` | `modelValue?: string` (v-model) | `update:modelValue` | TipTap WYSIWYG editor. |
 | `ChangeTimeline` | `points`, `selectedId` | `select(id)` | The accepted/pending timeline. |

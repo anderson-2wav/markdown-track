@@ -84,6 +84,31 @@ const canEdit = computed(() => hooks.can("edit", { id: props.docId }));
 const canAccept = computed(() => hooks.can("accept", { id: props.docId }));
 const pendingCount = computed(() => pendingChanges.value.length);
 
+// Download the currently-selected state (accepted / a pending change / the
+// "All changes" summary) as a markdown file, named to reflect that state.
+const baseName = computed(() => (props.docId || "document").replace(/\.md$/i, ""));
+const downloadName = computed(() => {
+  const pt = selectedPoint.value;
+  if (pt?.kind === "summary") return `${baseName.value}.all-changes.md`;
+  if (pt?.kind === "pending") {
+    const slug = String(pt.label).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+    return `${baseName.value}.${slug}.md`; // e.g. "doc.pending-2.md"
+  }
+  return `${baseName.value}.md`; // accepted (canonical)
+});
+
+function downloadCurrent() {
+  const blob = new Blob([viewedContent.value ?? ""], { type: "text/markdown;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = downloadName.value;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
 function selectLatest() {
   // Default to the "All changes" summary when present, else the latest point.
   const pts = points.value;
@@ -197,6 +222,12 @@ async function accept() {
           </button>
         </template>
         <template v-else>
+          <button
+            type="button"
+            class="mt-editor__btn"
+            :title="`Download ${downloadName}`"
+            @click="downloadCurrent"
+          >Download</button>
           <button
             v-if="pendingCount"
             type="button"
