@@ -4,17 +4,20 @@
 // a `select` event with the chosen document id. Title comes from the document's
 // single top-level `#` heading (derived at discovery by the host hook) and falls
 // back to the filename.
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 import { useMarkdownTrack } from "../composables/useMarkdownTrack.js";
+import { emitTrackEvent, TRACK_EVENTS } from "../lib/events.js";
 
 const emit = defineEmits(["select"]);
-const { hooks } = useMarkdownTrack();
+const config = useMarkdownTrack();
+const { hooks } = config;
 
 const docs = ref([]);
 const loading = ref(true);
 const error = ref("");
 
 onMounted(async () => {
+  emitTrackEvent(config, TRACK_EVENTS.ENTER_LIBRARY);
   try {
     const all = await hooks.listDocuments();
     docs.value = all.filter((doc) => hooks.can("view", doc));
@@ -25,6 +28,10 @@ onMounted(async () => {
   finally {
     loading.value = false;
   }
+});
+
+onBeforeUnmount(() => {
+  emitTrackEvent(config, TRACK_EVENTS.LEAVE_LIBRARY);
 });
 
 const titleOf = (doc) => doc.title || doc.filename;

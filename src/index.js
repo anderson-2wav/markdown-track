@@ -14,10 +14,11 @@ export { default as MarkdownEditor } from "./components/MarkdownEditor.vue";
 export { default as ChangeTimeline } from "./components/ChangeTimeline.vue";
 export { default as DiffView } from "./components/DiffView.vue";
 
-export { createMarkdownTrack, REQUIRED_HOOKS } from "./config/createMarkdownTrack.js";
+export { createMarkdownTrack, REQUIRED_HOOKS, OPTIONAL_HOOKS } from "./config/createMarkdownTrack.js";
 export { createInMemoryHooks } from "./config/inMemoryHooks.js";
 export { provideMarkdownTrack, useMarkdownTrack } from "./composables/useMarkdownTrack.js";
 export { extractTitle } from "./lib/title.js";
+export { TRACK_EVENTS, emitTrackEvent } from "./lib/events.js";
 
 // Styles are published separately as "@2wav/markdown-track/style.css".
 // For in-repo development, import "src/styles/markdown-track.css" directly.

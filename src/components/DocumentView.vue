@@ -4,8 +4,9 @@
 // renders them as a scrubbable timeline (Stage 3), and shows the selected
 // state read-only (with mermaid). Edit builds on the latest state; Save records
 // a new pending change. Diff (Stage 4) and Accept (Stage 5) build on this.
-import { ref, watch, onMounted, computed, defineAsyncComponent } from "vue";
+import { ref, watch, onMounted, onBeforeUnmount, computed, defineAsyncComponent } from "vue";
 import { useMarkdownTrack } from "../composables/useMarkdownTrack.js";
+import { emitTrackEvent, TRACK_EVENTS } from "../lib/events.js";
 import { extractTitle } from "../lib/title.js";
 import MarkdownRenderer from "./MarkdownRenderer.vue";
 import MarkdownEditor from "./MarkdownEditor.vue";
@@ -18,7 +19,8 @@ const MarkdownEditorVMd = defineAsyncComponent(() => import("./MarkdownEditorVMd
 
 const props = defineProps({ docId: { type: String, required: true } });
 const emit = defineEmits(["back"]);
-const { hooks, options } = useMarkdownTrack();
+const config = useMarkdownTrack();
+const { hooks, options } = config;
 
 // Editor is config-selectable: 'v-md-editor' (default — markdown source + preview,
 // no round-trip) or 'tiptap' (WYSIWYG, but lossy on non-standard markdown).
@@ -140,8 +142,20 @@ async function load() {
   }
 }
 
-onMounted(load);
-watch(() => props.docId, load);
+onMounted(() => {
+  emitTrackEvent(config, TRACK_EVENTS.SELECT_DOCUMENT, { docId: props.docId });
+  load();
+});
+// A doc-to-doc switch (docId changes without unmounting) is a leave of the old
+// document followed by a select of the new one.
+watch(() => props.docId, (next, prev) => {
+  if (prev) emitTrackEvent(config, TRACK_EVENTS.LEAVE_DOCUMENT, { docId: prev });
+  emitTrackEvent(config, TRACK_EVENTS.SELECT_DOCUMENT, { docId: next });
+  load();
+});
+onBeforeUnmount(() => {
+  emitTrackEvent(config, TRACK_EVENTS.LEAVE_DOCUMENT, { docId: props.docId });
+});
 // Selecting a different state cancels a pending Accept confirmation.
 watch(selectedId, () => { confirmingAccept.value = false; });
 
@@ -163,6 +177,7 @@ async function save() {
   error.value = "";
   try {
     const change = await hooks.savePendingChange(props.docId, { content: draft.value });
+    emitTrackEvent(config, TRACK_EVENTS.SAVE_DOCUMENT, { docId: props.docId });
     pendingChanges.value = await hooks.listPendingChanges(props.docId);
     selectLatest(); // back to the "All changes" summary
     savedNote.value = `Saved pending change (seq ${change.seq}).`;

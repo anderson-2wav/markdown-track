@@ -127,6 +127,64 @@ Notes:
 - `acceptChanges` with `upToChangeId` accepts up to a specific pending change and
   rebases any later ones; without it, it accepts everything.
 
+### Optional hooks
+
+| Hook | Signature | Purpose |
+|---|---|---|
+| `onEvent` | `(event: TrackEvent) => void` | Receive lifecycle notifications (see below). Omit it and nothing is reported. |
+
+## Event notifications
+
+Supply an optional `onEvent` hook to observe what the user is doing — entering
+and leaving the library, and selecting, saving, or leaving documents. It is
+**fire-and-forget**: the library never depends on what it returns, and any error
+it throws is swallowed, so reporting can never break the UI. Use it for audit
+logging, analytics, or presence.
+
+```js
+const config = createMarkdownTrack({
+  ...yourHooks,
+  onEvent(event) {
+    // { action, currentUser, library, docId, timestamp }
+    console.log("[markdown-track]", event.action, event);
+  },
+  options: { library: "my-library" }, // optional id, echoed on every event
+});
+```
+
+### Actions
+
+| `action` | Fired when | `docId` |
+|---|---|---|
+| `enter-library` | the document library opens | `null` |
+| `leave-library` | the document library closes | `null` |
+| `select-document` | a document opens (incl. switching directly between documents) | the document |
+| `save-document` | a pending change is saved successfully | the document |
+| `leave-document` | a document closes (incl. before switching to another) | the document |
+
+Switching straight from one document to another (without returning to the
+library) emits `leave-document` for the old one, then `select-document` for the
+new one.
+
+### Event shape
+
+```ts
+type TrackEventAction =
+  | "enter-library" | "leave-library"
+  | "select-document" | "save-document" | "leave-document";
+
+interface TrackEvent {
+  action: TrackEventAction;
+  currentUser: User | null;   // from getCurrentUser(); null if it is unavailable
+  library: string | null;     // options.library, or null
+  docId: string | null;       // the document for doc-scoped actions, else null
+  timestamp: string;          // ISO 8601
+}
+```
+
+`TRACK_EVENTS` (the action constants) and `emitTrackEvent` are also exported, for
+hosts that want to dispatch their own events through the same path.
+
 ## Components
 
 | Component | Props | Emits | Notes |

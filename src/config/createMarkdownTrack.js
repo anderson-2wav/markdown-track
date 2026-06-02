@@ -37,6 +37,9 @@
  * @property {(docId: string) => Promise<PendingChange[]>} listPendingChanges
  * @property {(docId: string, change: { content: string }) => Promise<PendingChange>} savePendingChange
  * @property {(docId: string, opts?: { upToChangeId?: string }) => Promise<AcceptedState>} acceptChanges
+ * @property {(event: import("../lib/events.js").TrackEvent) => void} [onEvent]
+ *   Optional. Fire-and-forget lifecycle notifications (enter/leave library,
+ *   select/save/leave document). See src/lib/events.js for the actions and payload.
  */
 
 export const REQUIRED_HOOKS = Object.freeze([
@@ -50,6 +53,10 @@ export const REQUIRED_HOOKS = Object.freeze([
   "acceptChanges",
 ]);
 
+// Hooks the host MAY supply. Validated as functions when present, but absence is
+// fine — the library degrades to a no-op (see emitTrackEvent).
+export const OPTIONAL_HOOKS = Object.freeze(["onEvent"]);
+
 /**
  * Validate and normalize a markdown-track configuration.
  *
@@ -62,8 +69,10 @@ export const REQUIRED_HOOKS = Object.freeze([
  *   - `editor`: `'v-md-editor'` (default — markdown source + live preview, no
  *     round-trip, so it never rewrites non-standard markdown) or `'tiptap'`
  *     (WYSIWYG; hides markdown syntax but is lossy on non-standard/nested markdown).
+ *   - `library`: optional host-supplied identifier for this library instance,
+ *     surfaced on every `onEvent` payload (handy when one host runs several).
  *
- * @param {MarkdownTrackHooks & { options?: { editor?: 'tiptap'|'v-md-editor' } }} config
+ * @param {MarkdownTrackHooks & { options?: { editor?: 'tiptap'|'v-md-editor', library?: string } }} config
  * @returns {{ hooks: MarkdownTrackHooks, options: object }}
  */
 export function createMarkdownTrack(config = {}) {
@@ -76,8 +85,20 @@ export function createMarkdownTrack(config = {}) {
     );
   }
 
+  const badOptional = OPTIONAL_HOOKS.filter(
+    (name) => config[name] != null && typeof config[name] !== "function"
+  );
+  if (badOptional.length > 0) {
+    throw new Error(
+      `createMarkdownTrack: optional hook(s) must be functions: ${badOptional.join(", ")}`
+    );
+  }
+
   const hooks = {};
   for (const name of REQUIRED_HOOKS) hooks[name] = config[name];
+  for (const name of OPTIONAL_HOOKS) {
+    if (typeof config[name] === "function") hooks[name] = config[name];
+  }
 
   return Object.freeze({
     hooks: Object.freeze(hooks),

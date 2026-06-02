@@ -35,6 +35,26 @@ export interface PendingChange {
 
 export type AccessAction = "view" | "edit" | "accept";
 
+/** A lifecycle action reported through the optional `onEvent` hook. */
+export type TrackEventAction =
+  | "enter-library"
+  | "select-document"
+  | "save-document"
+  | "leave-document"
+  | "leave-library";
+
+/** Fire-and-forget lifecycle notification payload. */
+export interface TrackEvent {
+  action: TrackEventAction;
+  currentUser: User | null;
+  /** Host-supplied library identifier (`options.library`), or null. */
+  library: string | null;
+  /** Document id for doc-scoped actions; null for library-scoped actions. */
+  docId: string | null;
+  /** ISO 8601 timestamp. */
+  timestamp: string;
+}
+
 /** The host-provided I/O contract (identity, access control, document storage). */
 export interface MarkdownTrackHooks {
   getCurrentUser(): User;
@@ -45,12 +65,32 @@ export interface MarkdownTrackHooks {
   listPendingChanges(docId: string): Promise<PendingChange[]>;
   savePendingChange(docId: string, change: { content: string }): Promise<PendingChange>;
   acceptChanges(docId: string, opts?: { upToChangeId?: string | null }): Promise<AcceptedState>;
+  /** Optional. Receives lifecycle events (enter/leave library, select/save/leave document). */
+  onEvent?(event: TrackEvent): void;
 }
 
 export interface MarkdownTrackOptions {
   /** Editor implementation. Default: 'v-md-editor'. */
   editor?: "v-md-editor" | "tiptap";
+  /** Optional identifier for this library instance, surfaced on every TrackEvent. */
+  library?: string;
 }
+
+/** Lifecycle action constants (values match TrackEventAction). */
+export const TRACK_EVENTS: Readonly<{
+  ENTER_LIBRARY: "enter-library";
+  SELECT_DOCUMENT: "select-document";
+  SAVE_DOCUMENT: "save-document";
+  LEAVE_DOCUMENT: "leave-document";
+  LEAVE_LIBRARY: "leave-library";
+}>;
+
+/** Build a TrackEvent payload and dispatch it to the config's `onEvent` hook. Never throws. */
+export function emitTrackEvent(
+  config: MarkdownTrackConfig,
+  action: TrackEventAction,
+  detail?: { docId?: string | null }
+): TrackEvent | undefined;
 
 export interface MarkdownTrackConfig {
   hooks: MarkdownTrackHooks;
@@ -58,6 +98,7 @@ export interface MarkdownTrackConfig {
 }
 
 export const REQUIRED_HOOKS: ReadonlyArray<keyof MarkdownTrackHooks>;
+export const OPTIONAL_HOOKS: ReadonlyArray<keyof MarkdownTrackHooks>;
 
 /** Validate + normalize a markdown-track configuration. */
 export function createMarkdownTrack(
