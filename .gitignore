@@ -1,0 +1,5 @@
+node_modules/
+
+# dist/ is committed (this package is consumed from git/file, not npm).
+
+/.private/
