@@ -7,8 +7,7 @@
  * host application re-themes by redefining tokens on `.mt-root` (or any ancestor)
  * rather than overriding rules. BEM class names; no Tailwind.
  */
-
-.mt-root {
+:root {
   /* color tokens */
   --mt-color-fg: #1f2328;
   --mt-color-muted: #656d76;
@@ -29,6 +28,9 @@
   --mt-radius: 6px;
   --mt-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
   --mt-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+.mt-root {
 
   color: var(--mt-color-fg);
   background: var(--mt-color-bg);
@@ -73,11 +75,15 @@
   padding: var(--mt-space);
   cursor: pointer;
 }
-.mt-library__link:hover { border-color: var(--mt-color-accent); }
+.mt-library__link:hover {
+  color: white;
+  border-color: var(--mt-color-accent);
+}
 .mt-library__title { font-weight: 600; }
 .mt-library__filename {
   font-family: var(--mt-font-mono);
   font-size: 0.8rem;
+  color: var(--mt-color-muted);
   color: var(--mt-color-muted);
 }
 

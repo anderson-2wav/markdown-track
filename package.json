@@ -15,16 +15,16 @@
   },
   "keywords": ["vue", "vue3", "markdown", "collaboration", "editor", "component-library", "bold"],
   "files": ["dist", "index.d.ts"],
-  "module": "./dist/markdown-track.js",
-  "main": "./dist/markdown-track.cjs",
+  "module": "./src/index.js",
+  "main": "./src/index.js",
   "types": "./index.d.ts",
   "exports": {
     ".": {
       "types": "./index.d.ts",
-      "import": "./dist/markdown-track.js",
-      "require": "./dist/markdown-track.cjs"
+      "import": "./src/index.js",
+      "require": "./src/index.js"
     },
-    "./style.css": "./dist/markdown-track.css"
+    "./style.css": "./src/styles/markdown-track.css"
   },
   "sideEffects": ["**/*.css"],
   "publishConfig": {
