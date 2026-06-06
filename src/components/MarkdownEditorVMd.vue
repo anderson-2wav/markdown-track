@@ -21,6 +21,7 @@ const emit = defineEmits(["update:modelValue"]);
 </script>
 
 <template>
+  <span>Please use the full-screen option for the best user experience. See <span style="display:inline; border: 2px solid red; ">&nbsp;&nbsp;</span>.</span>
   <VMdEditor
     class="mt-vmd"
     :model-value="modelValue"
@@ -32,4 +33,9 @@ const emit = defineEmits(["update:modelValue"]);
 
 <style scoped>
 .mt-vmd { border-radius: var(--mt-radius, 6px); overflow: hidden; }
+
+:deep(.v-md-editor__toolbar-item-fullscreen) {
+  border: 2px solid red;
+}
+
 </style>

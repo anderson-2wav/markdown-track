@@ -453,7 +453,7 @@ const bt = { class: "mt-diff" }, ht = { class: "mt-diff__stats" }, wt = { class:
   props: { docId: { type: String, required: !0 } },
   emits: ["back"],
   setup(e, { emit: r }) {
-    const s = Me(() => import("./MarkdownEditorVMd-CIGKbg-C.js")), t = e, o = r, c = me(), { hooks: l, options: g } = c, h = w(
+    const s = Me(() => import("./MarkdownEditorVMd-CWiZKWfU.js")), t = e, o = r, c = me(), { hooks: l, options: g } = c, h = w(
       () => g.editor === "tiptap" ? at : s
     ), a = $([]), v = $([]), _ = $(!0), i = $(""), p = $("view"), k = $(""), y = $(!1), T = $(""), D = $(null), S = $(!1), O = $(!1), X = w(() => Je(g.hideHistoryBefore)), Y = w(
       () => a.value.filter((n) => X.value(n.acceptedAt))
