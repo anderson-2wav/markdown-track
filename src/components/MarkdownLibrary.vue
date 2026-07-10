@@ -16,11 +16,17 @@ const docs = ref([]);
 const loading = ref(true);
 const error = ref("");
 
+// Display title: the document's single top-level `#` heading (derived at
+// discovery), falling back to the filename.
+const titleOf = (doc) => doc.title || doc.filename;
+
 onMounted(async () => {
   emitTrackEvent(config, TRACK_EVENTS.ENTER_LIBRARY);
   try {
     const all = await hooks.listDocuments();
-    docs.value = all.filter((doc) => hooks.can("view", doc));
+    docs.value = all
+      .filter((doc) => hooks.can("view", doc))
+      .sort((a, b) => titleOf(a).localeCompare(titleOf(b), undefined, { sensitivity: "base", numeric: true }));
   }
   catch (e) {
     error.value = e?.message || String(e);
@@ -33,8 +39,6 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   emitTrackEvent(config, TRACK_EVENTS.LEAVE_LIBRARY);
 });
-
-const titleOf = (doc) => doc.title || doc.filename;
 </script>
 
 <template>
