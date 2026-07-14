@@ -18,6 +18,7 @@ export { createMarkdownTrack, REQUIRED_HOOKS, OPTIONAL_HOOKS } from "./config/cr
 export { createInMemoryHooks } from "./config/inMemoryHooks.js";
 export { provideMarkdownTrack, useMarkdownTrack } from "./composables/useMarkdownTrack.js";
 export { extractTitle } from "./lib/title.js";
+export { extractAccess } from "./lib/access.js";
 export { TRACK_EVENTS, emitTrackEvent } from "./lib/events.js";
 
 // Styles are published separately as "@2wav/markdown-track/style.css".

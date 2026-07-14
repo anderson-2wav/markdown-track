@@ -10,6 +10,8 @@
  * @property {string} id
  * @property {string} filename
  * @property {string} [title]
+ * @property {string[]} [access]  Opaque access tokens from the `<!-- Access: … -->`
+ *   marker (host-populated). Absent = unrestricted. Host's `can('view')` decides matches.
  *
  * @typedef {Object} AcceptedState
  * @property {string} id
@@ -30,7 +32,7 @@
  *
  * @typedef {Object} MarkdownTrackHooks
  * @property {() => User} getCurrentUser
- * @property {(action: 'view'|'edit'|'accept', doc: DocMeta) => boolean} can
+ * @property {(action: 'view'|'edit'|'accept'|'set-access', doc: DocMeta) => boolean} can
  * @property {() => Promise<DocMeta[]>} listDocuments
  * @property {(docId: string) => Promise<AcceptedState>} readAcceptedState
  * @property {(docId: string) => Promise<AcceptedState[]>} listAcceptedStates

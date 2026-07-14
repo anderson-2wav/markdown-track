@@ -12,6 +12,13 @@ export interface DocMeta {
   id: string;
   filename: string;
   title?: string;
+  /**
+   * Opaque access-control tokens parsed from the document's `<!-- Access: … -->`
+   * marker (host-populated at discovery). Absent/undefined = unrestricted; an
+   * empty array = marker present with no tokens. The host's `can('view', doc)`
+   * decides who matches.
+   */
+  access?: string[];
 }
 
 export interface AcceptedState {
@@ -33,7 +40,7 @@ export interface PendingChange {
   baseRef?: string;
 }
 
-export type AccessAction = "view" | "edit" | "accept";
+export type AccessAction = "view" | "edit" | "accept" | "set-access";
 
 /** A lifecycle action reported through the optional `onEvent` hook. */
 export type TrackEventAction =
@@ -129,6 +136,13 @@ export function useMarkdownTrack(): MarkdownTrackConfig;
 
 /** Return a document's lone top-level `#` heading, else null. */
 export function extractTitle(markdown: string): string | null;
+
+/**
+ * Parse a document's `<!-- Access: … -->` marker. Returns the trimmed tokens
+ * (possibly empty for `<!-- Access: -->`), or null when no marker is present.
+ * Markers inside fenced code blocks are ignored; the last marker wins.
+ */
+export function extractAccess(markdown: string): string[] | null;
 
 export const MarkdownLibrary: DefineComponent<Record<string, never>>;
 export const DocumentView: DefineComponent<{ docId: string }>;
