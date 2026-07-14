@@ -9,7 +9,7 @@ import { useMarkdownTrack } from "../composables/useMarkdownTrack.js";
 import { emitTrackEvent, TRACK_EVENTS } from "../lib/events.js";
 import { makeCutoffFilter } from "../lib/history.js";
 import { extractTitle } from "../lib/title.js";
-import { extractAccess } from "../lib/access.js";
+import { extractAccess, enforceAccessMarker } from "../lib/access.js";
 import MarkdownRenderer from "./MarkdownRenderer.vue";
 import MarkdownEditor from "./MarkdownEditor.vue";
 import ChangeTimeline from "./ChangeTimeline.vue";
@@ -36,6 +36,7 @@ const loading = ref(true);
 const error = ref("");
 const mode = ref("view"); // 'view' | 'edit'
 const draft = ref("");
+const editBaseline = ref("");
 const saving = ref(false);
 const savedNote = ref("");
 const selectedId = ref(null);
@@ -185,6 +186,7 @@ watch(selectedId, () => { confirmingAccept.value = false; });
 function startEdit() {
   // Edit builds on the currently-selected state (latest by default).
   draft.value = selectedPoint.value?.content ?? "";
+  editBaseline.value = draft.value;
   savedNote.value = "";
   showDiff.value = false;
   confirmingAccept.value = false;
@@ -199,11 +201,15 @@ async function save() {
   saving.value = true;
   error.value = "";
   try {
-    const change = await hooks.savePendingChange(props.docId, { content: draft.value });
+    const allowed = hooks.can("set-access", docRef.value);
+    const { content, reverted } = enforceAccessMarker(draft.value, editBaseline.value, allowed);
+    const change = await hooks.savePendingChange(props.docId, { content });
     emitTrackEvent(config, TRACK_EVENTS.SAVE_DOCUMENT, { docId: props.docId });
     pendingChanges.value = await hooks.listPendingChanges(props.docId);
     selectLatest(); // back to the "All changes" summary
-    savedNote.value = `Saved pending change (seq ${change.seq}).`;
+    savedNote.value = reverted
+      ? "Saved. The access list can only be changed by an administrator, so that change was reverted."
+      : `Saved pending change (seq ${change.seq}).`;
     mode.value = "view";
   }
   catch (e) {
