@@ -100,7 +100,7 @@ are missing.
 | Hook | Signature | Purpose |
 |---|---|---|
 | `getCurrentUser` | `() => User` | The acting user. |
-| `can` | `(action, doc) => boolean` | Authorize `'view' \| 'edit' \| 'accept'`. |
+| `can` | `(action, doc) => boolean` | Authorize `'view' \| 'edit' \| 'accept' \| 'set-access'`. |
 | `listDocuments` | `() => Promise<DocMeta[]>` | The library listing. |
 | `readAcceptedState` | `(docId) => Promise<AcceptedState>` | Current accepted version. |
 | `listAcceptedStates` | `(docId) => Promise<AcceptedState[]>` | Accepted history (oldest→newest). |
@@ -112,7 +112,7 @@ are missing.
 
 ```ts
 interface User          { id: string; email?: string; name?: string }
-interface DocMeta       { id: string; filename: string; title?: string }
+interface DocMeta       { id: string; filename: string; title?: string; access?: string[] }
 interface AcceptedState { id: string; docId: string; content: string;
                           acceptedBy: User; acceptedAt: string; ref: string }
 interface PendingChange { id: string; docId: string; content: string;
@@ -124,6 +124,8 @@ Notes:
 - `DocMeta.title` is optional; provide it (e.g. the document's lone top-level
   `#` heading) and the library shows it, otherwise it falls back to `filename`.
   The `extractTitle(markdown)` helper is exported for this.
+- `DocMeta.access` (optional) carries the document's parsed `<!-- Access: … -->`
+  tokens; see **Access control** below. Absent = unrestricted.
 - `acceptChanges` with `upToChangeId` accepts up to a specific pending change and
   rebases any later ones; without it, it accepts everything.
 
@@ -199,6 +201,89 @@ hosts that want to dispatch their own events through the same path.
 Most apps only need `MarkdownLibrary` + `DocumentView`; the others are exposed for
 custom layouts.
 
+## Routing & deep-linking
+
+The library is **router-agnostic** — it ships no routes and holds no selection
+state. `DocumentView` takes a `docId` prop, `MarkdownLibrary` emits
+`select(docId)`, and *which* document is shown is entirely the host's decision
+(the Quick start keeps it in a local `ref`). To make documents deep-linkable, map
+a URL segment to a `docId` and drive that same prop from your router.
+
+Since `docId` is whatever `listDocuments` returns as `id`, using the filename as
+the id gives clean URLs for free: `/docs/Guide.md` → `docId` `"Guide.md"`.
+
+**The pattern (two-way):**
+
+1. **URL → view.** Resolve the `docId` from the route and validate it against
+   `listDocuments()` (fetched once). If it names no viewable document — unknown,
+   renamed, or access-filtered — fall back to the library and normalize the URL.
+2. **View → URL.** On `select` / `back`, push or replace the route so links,
+   browser back/forward, and refresh all stay in sync.
+3. Show a brief **loading** state until the list resolves, so a cold deep-link
+   doesn't flash the library before honoring the link.
+
+Framework-agnostic sketch:
+
+```js
+const docId    = /* the id from your route */;
+const validIds = new Set((await listDocuments()).map((d) => d.id));
+const selected = validIds.has(docId) ? docId : null;   // else → show the library
+// select(id) → route to `.../${id}` ; back → route to the library path
+```
+
+### Nuxt
+
+Nuxt derives routes from `pages/`, auto-imports its composables, and renders on
+the server first — three things to get right:
+
+- **Optional dynamic segment** — one page serves both the library and a document:
+
+  ```
+  pages/docs/[[docId]].vue      # matches /docs AND /docs/Guide.md
+  ```
+
+  Use a catch-all `pages/docs/[[slug]].vue` (with `slug?.join("/")`) if your ids
+  can contain `/`.
+
+- **Fetch the id set with `useAsyncData`, not a bare `.then()`** — it runs on the
+  server and ships the result in the payload, so a deep link renders the right
+  view with no hydration flash. `useRoute` / `navigateTo` are auto-imports:
+
+  ```vue
+  <script setup>
+  const route  = useRoute();
+  const config = useMarkdownTrack();   // provided once in a layout/plugin (below)
+  const { data: ids } = await useAsyncData("mt-doc-ids", async () =>
+    (await config.hooks.listDocuments()).map((d) => d.id)
+  );
+  const validIds   = computed(() => new Set(ids.value ?? []));
+  const docId      = computed(() => route.params.docId || null);
+  const selectedId = computed(() =>
+    docId.value && validIds.value.has(docId.value) ? docId.value : null
+  );
+  // Normalize a bad id where SSR honors it (setup/middleware), not a client watch:
+  if (docId.value && ids.value && !validIds.value.has(docId.value)) {
+    await navigateTo("/docs", { replace: true });
+  }
+  const openDoc = (id) => navigateTo(`/docs/${encodeURIComponent(id)}`);
+  </script>
+
+  <template>
+    <MarkdownLibrary v-if="!selectedId" @select="openDoc" />
+    <DocumentView v-else :doc-id="selectedId" @back="() => navigateTo('/docs')" />
+  </template>
+  ```
+
+- **`provideMarkdownTrack`** must run in an ancestor — call it once in a layout or
+  plugin (with `import "@2wav/markdown-track/style.css"`), not per page.
+
+**Links inside rendered markdown.** A markdown link like `[Guide](/docs/Guide.md)`
+renders as a plain same-origin anchor: it works, but triggers a full navigation (a
+fresh SSR round-trip in Nuxt) rather than client-side routing. If you want
+in-document links to route client-side, intercept same-origin clicks on the
+rendered output and hand them to `navigateTo` — an optional enhancement; the
+default full navigation is correct either way.
+
 ## Editor selection
 
 `options.editor` chooses the editing experience:
@@ -238,21 +323,72 @@ const config = createMarkdownTrack({
 
 ## Access control (optional)
 
-A document may declare who can see it with a single HTML comment, matched
-anywhere (last one wins):
+A document may declare who can see it with a single HTML comment, matched anywhere
+(last one wins):
 
     <!-- Access: admin, projects_admin, sam@example.org -->
 
-The tokens are **opaque** — the library only parses them (see the exported
-`extractAccess`) and calls your `can('view' | 'set-access', doc)` hook, passing the
-parsed tokens as `doc.access`. Your host maps tokens to roles/identities, decides
-who matches, and grants admins a bypass. The access decision reads the *effective*
-content (the latest pending change if any, else the accepted state).
+The tokens are **opaque** to the library — it only parses and trims them (via the
+exported `extractAccess`) and calls your hooks. **The library parses; your `can()`
+enforces.** Two actions do the work:
+
+- **`can('view', doc)`** gates both the library listing and opening a document.
+  Typical logic: allow if the user is an admin, the document is unrestricted
+  (`doc.access == null`), or the user's keys intersect `doc.access`.
+- **`can('set-access', doc)`** decides who may change the `Access:` line. When a
+  user *without* it saves an edit that alters the line, the library **reverts just
+  that line and keeps their other changes**, notifying them — you only answer the
+  hook.
+
+Give admins a bypass on `view`, `set-access`, **and** `accept`, so a document can
+never lock everyone (including admins) out.
+
+**Wiring it up (host side):**
+
+1. **Surface the tokens.** Populate `DocMeta.access` from each document's parsed
+   marker in `listDocuments`, so the library can filter the listing
+   (`MarkdownLibrary` already drops entries your `can('view')` rejects):
+
+   ```js
+   import { extractAccess } from "@2wav/markdown-track";
+   // inside listDocuments(), per document:
+   const access = extractAccess(effectiveContent) ?? undefined; // string[] | undefined
+   return { id, filename, title, access };
+   ```
+
+2. **Implement `can`:**
+
+   ```js
+   function can(action, doc) {
+     if (isAdmin(currentUser)) return true;                  // bypass — no lockout
+     if (action === "accept" || action === "set-access") return false;
+     if (action === "view") {
+       const a = doc?.access;
+       if (a == null) return true;         // no marker → unrestricted
+       if (a.length === 0) return false;   // `<!-- Access: -->` → your call
+       return a.some((tok) => userKeys(currentUser).includes(tok));
+     }
+     return true;                           // 'edit', etc.
+   }
+   ```
+
+3. **Latest pending governs.** Derive `access` (and the view decision) from each
+   document's *effective* content — the latest pending change if any, else the
+   accepted state — so an admin can change access live through a pending edit.
+   Pass whichever content is effective to `extractAccess`.
+
+`extractAccess(markdown)` returns the trimmed tokens, `[]` for an empty marker, or
+`null` when there's no marker.
 
 > **Not a security boundary.** This hides documents in the UI and politely blocks
 > access; it is **not** confidentiality. Anyone able to call your read hooks (or
 > the underlying store) can fetch the raw markdown, including the `Access:` line.
 > If you need real confidentiality, enforce it in your server-side read path.
+
+**Nuxt / SSR.** Your hooks run on the server (Nitro) as well as the client, so
+parse access in `listDocuments` server-side. A deep link to a restricted document
+then falls back to the library during SSR — it simply isn't in the filtered list —
+with no flash.
 
 ## Styling
 
