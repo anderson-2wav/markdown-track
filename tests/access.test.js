@@ -51,3 +51,37 @@ test("non-string input returns null", () => {
   assert.equal(extractAccess(null), null);
   assert.equal(extractAccess(42), null);
 });
+
+import { setAccessMarker } from "../src/lib/access.js";
+
+test("setAccessMarker replaces an existing marker with normalized tokens", () => {
+  const out = setAccessMarker("# Doc\n\nbody\n\n<!-- Access: old -->\n", ["a", "b"]);
+  assert.deepEqual(extractAccess(out), ["a", "b"]);
+  assert.equal((out.match(/<!--\s*Access:/gi) || []).length, 1); // exactly one marker
+});
+
+test("setAccessMarker(null) removes the marker", () => {
+  const out = setAccessMarker("# Doc\n\nbody\n\n<!-- Access: a -->\n", null);
+  assert.equal(extractAccess(out), null);
+  assert.match(out, /# Doc/);
+  assert.match(out, /body/);
+});
+
+test("setAccessMarker adds a marker when none existed, keeping the body", () => {
+  const out = setAccessMarker("# Doc\n\nbody", ["a"]);
+  assert.deepEqual(extractAccess(out), ["a"]);
+  assert.match(out, /body/);
+});
+
+test("setAccessMarker does not touch a marker inside a fence", () => {
+  const md = "# Doc\n\n```\n<!-- Access: fake -->\n```\n\n<!-- Access: real -->\n";
+  const out = setAccessMarker(md, ["new"]);
+  assert.deepEqual(extractAccess(out), ["new"]);
+  assert.match(out, /<!-- Access: fake -->/); // the fenced example survives verbatim
+});
+
+test("setAccessMarker is idempotent for equal tokens", () => {
+  const once = setAccessMarker("# Doc\n\nbody", ["a", "b"]);
+  const twice = setAccessMarker(once, ["a", "b"]);
+  assert.equal(twice, once);
+});

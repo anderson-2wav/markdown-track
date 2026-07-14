@@ -46,3 +46,34 @@ export function extractAccess(markdown) {
   }
   return tokens;
 }
+
+/**
+ * Remove every non-fenced Access marker line from the document.
+ * @param {string} markdown
+ * @returns {string}
+ */
+function stripAccessLines(markdown) {
+  const kept = [];
+  for (const { line, fenced } of linesWithFenceState(markdown)) {
+    if (!fenced && ACCESS_LINE.test(line)) continue;
+    kept.push(line);
+  }
+  return kept.join("\n");
+}
+
+/**
+ * Return `markdown` with its Access marker set to `tokens`. Strips any existing
+ * (non-fenced) markers first; `null` removes the marker. When tokens are given,
+ * a single normalized marker is appended as the final line.
+ * @param {string} markdown
+ * @param {string[]|null} tokens
+ * @returns {string}
+ */
+export function setAccessMarker(markdown, tokens) {
+  const body = stripAccessLines(typeof markdown === "string" ? markdown : "").replace(/\s+$/, "");
+  if (tokens === null || tokens === undefined) {
+    return body ? `${body}\n` : "";
+  }
+  const marker = `<!-- Access: ${tokens.join(", ")} -->`;
+  return (body ? `${body}\n\n` : "") + `${marker}\n`;
+}
