@@ -131,3 +131,11 @@ test("adding a marker where baseline had none is reverted when disallowed", () =
   assert.equal(r.reverted, true);
   assert.equal(extractAccess(r.content), null); // baseline had no marker
 });
+
+test("duplicate-token trick cannot drop a grantee (disallowed → reverted)", () => {
+  const base = "body\n\n<!-- Access: admin, user -->\n";
+  const draft = "body\n\n<!-- Access: admin, admin -->\n";
+  const r = enforceAccessMarker(draft, base, false);
+  assert.equal(r.reverted, true);
+  assert.deepEqual(extractAccess(r.content).slice().sort(), ["admin", "user"]);
+});

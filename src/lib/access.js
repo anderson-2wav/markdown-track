@@ -87,8 +87,9 @@ export function setAccessMarker(markdown, tokens) {
 function accessEqual(a, b) {
   if (a === null || b === null) return a === b;
   if (a.length !== b.length) return false;
-  const setB = new Set(b);
-  return a.every((t) => setB.has(t));
+  const sa = [...a].sort();
+  const sb = [...b].sort();
+  return sa.every((t, i) => t === sb[i]);
 }
 
 /**
