@@ -77,3 +77,32 @@ export function setAccessMarker(markdown, tokens) {
   const marker = `<!-- Access: ${tokens.join(", ")} -->`;
   return (body ? `${body}\n\n` : "") + `${marker}\n`;
 }
+
+/**
+ * Set-equality for token lists; null (no marker) is distinct from [] (empty marker).
+ * @param {string[]|null} a
+ * @param {string[]|null} b
+ * @returns {boolean}
+ */
+function accessEqual(a, b) {
+  if (a === null || b === null) return a === b;
+  if (a.length !== b.length) return false;
+  const setB = new Set(b);
+  return a.every((t) => setB.has(t));
+}
+
+/**
+ * Guard a save against unauthorized changes to the Access marker (decision #4).
+ * @param {string} draft     the content the user is saving
+ * @param {string} baseline  the content the edit started from (effective current)
+ * @param {boolean} allowed  host's can('set-access', doc)
+ * @returns {{ content: string, reverted: boolean }}
+ */
+export function enforceAccessMarker(draft, baseline, allowed) {
+  const draftTokens = extractAccess(draft);
+  const baseTokens = extractAccess(baseline);
+  if (allowed || accessEqual(draftTokens, baseTokens)) {
+    return { content: draft, reverted: false };
+  }
+  return { content: setAccessMarker(draft, baseTokens), reverted: true };
+}

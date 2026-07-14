@@ -85,3 +85,49 @@ test("setAccessMarker is idempotent for equal tokens", () => {
   const twice = setAccessMarker(once, ["a", "b"]);
   assert.equal(twice, once);
 });
+
+import { enforceAccessMarker } from "../src/lib/access.js";
+
+const BASE = "# Doc\n\nbody\n\n<!-- Access: admin -->\n";
+
+test("no access change: passes draft through untouched", () => {
+  const draft = "# Doc\n\nEDITED body\n\n<!-- Access: admin -->\n";
+  const r = enforceAccessMarker(draft, BASE, false);
+  assert.equal(r.reverted, false);
+  assert.equal(r.content, draft);
+});
+
+test("token reorder is not a change", () => {
+  const draft = "body\n\n<!-- Access: b, a -->\n";
+  const base = "body\n\n<!-- Access: a, b -->\n";
+  const r = enforceAccessMarker(draft, base, false);
+  assert.equal(r.reverted, false);
+});
+
+test("disallowed access change: reverts the marker, keeps other edits", () => {
+  const draft = "# Doc\n\nEDITED body\n\n<!-- Access: admin, sneaky@example.org -->\n";
+  const r = enforceAccessMarker(draft, BASE, false);
+  assert.equal(r.reverted, true);
+  assert.deepEqual(extractAccess(r.content), ["admin"]); // reverted to baseline
+  assert.match(r.content, /EDITED body/);               // prose edit preserved
+});
+
+test("disallowed removal of the marker is reverted", () => {
+  const draft = "# Doc\n\nbody no marker\n";
+  const r = enforceAccessMarker(draft, BASE, false);
+  assert.equal(r.reverted, true);
+  assert.deepEqual(extractAccess(r.content), ["admin"]);
+});
+
+test("allowed=true lets the access change through", () => {
+  const draft = "body\n\n<!-- Access: new -->\n";
+  const r = enforceAccessMarker(draft, BASE, true);
+  assert.equal(r.reverted, false);
+  assert.deepEqual(extractAccess(r.content), ["new"]);
+});
+
+test("adding a marker where baseline had none is reverted when disallowed", () => {
+  const r = enforceAccessMarker("body\n\n<!-- Access: x -->\n", "body\n", false);
+  assert.equal(r.reverted, true);
+  assert.equal(extractAccess(r.content), null); // baseline had no marker
+});
