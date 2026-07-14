@@ -1,4 +1,4 @@
-import { createElementBlock as m, openBlock as i, Fragment as u, createElementVNode as d, createVNode as p, createTextVNode as a, unref as c } from "vue";
+import { openBlock as m, createElementBlock as i, Fragment as u, createElementVNode as d, createTextVNode as a, createVNode as p, unref as c } from "vue";
 import n from "@kangc/v-md-editor";
 import "@kangc/v-md-editor/lib/style/base-editor.css";
 import f from "@kangc/v-md-editor/lib/theme/github.js";
@@ -16,7 +16,7 @@ const h = (t, r) => {
   setup(t, { emit: r }) {
     n.use(f, { Hljs: V });
     const o = r;
-    return (l, e) => (i(), m(u, null, [
+    return (l, e) => (m(), i(u, null, [
       e[1] || (e[1] = d("span", null, [
         a("Please use the full-screen option for the best user experience. See "),
         d("span", { style: { display: "inline", border: "2px solid red" } }, "  "),
