@@ -36,7 +36,6 @@ const loading = ref(true);
 const error = ref("");
 const mode = ref("view"); // 'view' | 'edit'
 const draft = ref("");
-const editBaseline = ref("");
 const saving = ref(false);
 const savedNote = ref("");
 const selectedId = ref(null);
@@ -186,7 +185,6 @@ watch(selectedId, () => { confirmingAccept.value = false; });
 function startEdit() {
   // Edit builds on the currently-selected state (latest by default).
   draft.value = selectedPoint.value?.content ?? "";
-  editBaseline.value = draft.value;
   savedNote.value = "";
   showDiff.value = false;
   confirmingAccept.value = false;
@@ -202,7 +200,7 @@ async function save() {
   error.value = "";
   try {
     const allowed = hooks.can("set-access", docRef.value);
-    const { content, reverted } = enforceAccessMarker(draft.value, editBaseline.value, allowed);
+    const { content, reverted } = enforceAccessMarker(draft.value, effectiveContent.value, allowed);
     const change = await hooks.savePendingChange(props.docId, { content });
     emitTrackEvent(config, TRACK_EVENTS.SAVE_DOCUMENT, { docId: props.docId });
     pendingChanges.value = await hooks.listPendingChanges(props.docId);
