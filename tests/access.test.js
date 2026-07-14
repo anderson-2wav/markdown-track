@@ -139,3 +139,25 @@ test("duplicate-token trick cannot drop a grantee (disallowed → reverted)", ()
   assert.equal(r.reverted, true);
   assert.deepEqual(extractAccess(r.content).slice().sort(), ["admin", "user"]);
 });
+
+test("setAccessMarker preserves CRLF line endings", () => {
+  const md = "# Doc\r\n\r\nbody\r\n\r\n<!-- Access: old -->\r\n";
+  const out = setAccessMarker(md, ["a"]);
+  assert.deepEqual(extractAccess(out), ["a"]);
+  assert.ok(out.includes("\r\n"));
+  assert.equal(out.replace(/\r\n/g, "").includes("\n"), false); // no lone LF remains
+});
+
+test("setAccessMarker keeps LF for LF input", () => {
+  const out = setAccessMarker("# Doc\n\nbody", ["a"]);
+  assert.equal(out.includes("\r"), false);
+});
+
+test("enforceAccessMarker revert preserves CRLF", () => {
+  const base = "body\r\n\r\n<!-- Access: admin -->\r\n";
+  const draft = "body EDITED\r\n\r\n<!-- Access: admin, sneaky -->\r\n";
+  const r = enforceAccessMarker(draft, base, false);
+  assert.equal(r.reverted, true);
+  assert.deepEqual(extractAccess(r.content), ["admin"]);
+  assert.ok(r.content.includes("\r\n"));
+});

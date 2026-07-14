@@ -70,12 +70,14 @@ function stripAccessLines(markdown) {
  * @returns {string}
  */
 export function setAccessMarker(markdown, tokens) {
-  const body = stripAccessLines(typeof markdown === "string" ? markdown : "").replace(/\s+$/, "");
+  const src = typeof markdown === "string" ? markdown : "";
+  const eol = /\r\n/.test(src) ? "\r\n" : "\n";
+  const body = stripAccessLines(src).replace(/\s+$/, "").split("\n").join(eol);
   if (tokens === null || tokens === undefined) {
-    return body ? `${body}\n` : "";
+    return body ? `${body}${eol}` : "";
   }
   const marker = `<!-- Access: ${tokens.join(", ")} -->`;
-  return (body ? `${body}\n\n` : "") + `${marker}\n`;
+  return (body ? `${body}${eol}${eol}` : "") + `${marker}${eol}`;
 }
 
 /**
