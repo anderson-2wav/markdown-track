@@ -236,6 +236,24 @@ const config = createMarkdownTrack({
   change. It is not an access control — pair it with your `can`/storage hooks if
   earlier content must be truly unavailable.
 
+## Access control (optional)
+
+A document may declare who can see it with a single HTML comment, matched
+anywhere (last one wins):
+
+    <!-- Access: admin, projects_admin, sam@example.org -->
+
+The tokens are **opaque** — the library only parses them (see the exported
+`extractAccess`) and calls your `can('view' | 'set-access', doc)` hook, passing the
+parsed tokens as `doc.access`. Your host maps tokens to roles/identities, decides
+who matches, and grants admins a bypass. The access decision reads the *effective*
+content (the latest pending change if any, else the accepted state).
+
+> **Not a security boundary.** This hides documents in the UI and politely blocks
+> access; it is **not** confidentiality. Anyone able to call your read hooks (or
+> the underlying store) can fetch the raw markdown, including the `Access:` line.
+> If you need real confidentiality, enforce it in your server-side read path.
+
 ## Styling
 
 Import the stylesheet once:
