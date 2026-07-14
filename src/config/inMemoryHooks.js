@@ -1,5 +1,6 @@
 // Copyright (c) 2026 Anderson Wiese / 2wav, Inc. SPDX-License-Identifier: LGPL-3.0-or-later
 import { extractTitle } from "../lib/title.js";
+import { extractAccess } from "../lib/access.js";
 
 /**
  * In-memory reference implementation of the markdown-track hooks (§3.2).
@@ -48,6 +49,15 @@ export function createInMemoryHooks(seed = {}) {
     return list[list.length - 1];
   };
 
+  const lastPending = (docId) => {
+    const list = pending.get(docId) || [];
+    return list[list.length - 1];
+  };
+
+  // Effective content = latest pending change if any, else last accepted (spec #5).
+  const effectiveContent = (docId) =>
+    lastPending(docId)?.content ?? lastAccepted(docId)?.content ?? "";
+
   return {
     getCurrentUser: () => clone(user),
 
@@ -55,8 +65,13 @@ export function createInMemoryHooks(seed = {}) {
 
     listDocuments: async () =>
       [...docs.values()].map((d) => {
-        const content = lastAccepted(d.id)?.content ?? "";
-        return clone({ ...d, title: extractTitle(content) ?? undefined });
+        const content = effectiveContent(d.id);
+        const access = extractAccess(content);
+        return clone({
+          ...d,
+          title: extractTitle(content) ?? undefined,
+          access: access ?? undefined,
+        });
       }),
 
     readAcceptedState: async (docId) => {

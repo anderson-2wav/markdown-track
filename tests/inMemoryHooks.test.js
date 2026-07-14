@@ -60,3 +60,25 @@ test("accepting with no pending throws", async () => {
   const h = setup();
   await assert.rejects(() => h.acceptChanges("d", {}), /No pending changes/);
 });
+
+test("listDocuments exposes access tokens from the accepted content", async () => {
+  const hooks = createInMemoryHooks({
+    documents: [
+      { id: "a.md", filename: "a.md", content: "# A\n\n<!-- Access: admin -->\n" },
+      { id: "b.md", filename: "b.md", content: "# B\n\nopen" },
+    ],
+  });
+  const list = await hooks.listDocuments();
+  const byId = Object.fromEntries(list.map((d) => [d.id, d]));
+  assert.deepEqual(byId["a.md"].access, ["admin"]);
+  assert.equal(byId["b.md"].access, undefined);
+});
+
+test("listDocuments access reflects the latest pending change (pending governs)", async () => {
+  const hooks = createInMemoryHooks({
+    documents: [{ id: "a.md", filename: "a.md", content: "# A\n\nopen" }],
+  });
+  await hooks.savePendingChange("a.md", { content: "# A\n\nopen\n\n<!-- Access: admin -->\n" });
+  const [doc] = await hooks.listDocuments();
+  assert.deepEqual(doc.access, ["admin"]);
+});
