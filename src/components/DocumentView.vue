@@ -9,6 +9,7 @@ import { useMarkdownTrack } from "../composables/useMarkdownTrack.js";
 import { emitTrackEvent, TRACK_EVENTS } from "../lib/events.js";
 import { makeCutoffFilter } from "../lib/history.js";
 import { extractTitle } from "../lib/title.js";
+import { extractAccess } from "../lib/access.js";
 import MarkdownRenderer from "./MarkdownRenderer.vue";
 import MarkdownEditor from "./MarkdownEditor.vue";
 import ChangeTimeline from "./ChangeTimeline.vue";
@@ -94,8 +95,18 @@ const diffOldText = computed(() => {
   return points.value[idx - 1]?.content ?? "";
 });
 const title = computed(() => extractTitle(latestAccepted.value?.content || "") || props.docId);
-const canEdit = computed(() => hooks.can("edit", { id: props.docId }));
-const canAccept = computed(() => hooks.can("accept", { id: props.docId }));
+
+// Access decision reads the *effective* content — latest pending if any, else
+// latest accepted (spec #5) — from the raw (uncut) loaded data.
+const effectiveContent = computed(() =>
+  pendingChanges.value[pendingChanges.value.length - 1]?.content
+  ?? acceptedStates.value[acceptedStates.value.length - 1]?.content
+  ?? ""
+);
+const docRef = computed(() => ({ id: props.docId, access: extractAccess(effectiveContent.value) }));
+const canView = computed(() => hooks.can("view", docRef.value));
+const canEdit = computed(() => canView.value && hooks.can("edit", docRef.value));
+const canAccept = computed(() => canView.value && hooks.can("accept", docRef.value));
 const pendingCount = computed(() => visiblePending.value.length);
 
 // Download the currently-selected state (accepted / a pending change / the
@@ -281,6 +292,10 @@ async function accept() {
 
     <p v-if="loading" class="mt-library__status">Loading…</p>
     <p v-else-if="error" class="mt-library__status mt-library__status--error">{{ error }}</p>
+
+    <p v-else-if="!canView" class="mt-library__status">
+      You don’t have access to this document.
+    </p>
 
     <template v-else>
       <p v-if="savedNote" class="mt-doc__note">{{ savedNote }}</p>
