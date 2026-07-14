@@ -252,9 +252,9 @@ async function accept() {
   <div class="mt-doc">
     <div class="mt-doc__bar">
       <button type="button" class="mt-editor__btn" @click="emit('back')">← Library</button>
-      <h2 class="mt-doc__title">{{ title }}</h2>
+      <h2 class="mt-doc__title">{{ canView ? title : docId }}</h2>
       <span class="mt-doc__spacer"></span>
-      <span v-if="pendingCount" class="mt-doc__pending">{{ pendingCount }} pending</span>
+      <span v-if="canView && pendingCount" class="mt-doc__pending">{{ pendingCount }} pending</span>
       <template v-if="mode === 'view'">
         <template v-if="confirmingAccept">
           <span class="mt-doc__confirm">Accept “{{ selectedPoint?.label }}” as the new baseline?</span>
