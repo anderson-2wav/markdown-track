@@ -261,13 +261,14 @@ async function accept() {
         </template>
         <template v-else>
           <button
+            v-if="canView"
             type="button"
             class="mt-editor__btn"
             :title="`Download ${downloadName}`"
             @click="downloadCurrent"
           >Download</button>
           <button
-            v-if="pendingCount"
+            v-if="canView && pendingCount"
             type="button"
             class="mt-editor__btn"
             :class="{ 'is-active': showDiff }"
