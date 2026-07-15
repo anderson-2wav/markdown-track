@@ -1,18 +1,18 @@
-import { provide as xe, inject as Me, ref as $, onMounted as H, onBeforeUnmount as J, openBlock as u, createElementBlock as v, createElementVNode as p, toDisplayString as C, Fragment as D, renderList as te, createCommentVNode as x, watch as F, nextTick as Ie, shallowRef as Le, normalizeClass as M, withDirectives as re, createVNode as De, unref as Oe, vShow as ce, computed as k, createTextVNode as Ne, defineAsyncComponent as Re, createBlock as Y, resolveDynamicComponent as Ve } from "vue";
-import { marked as fe } from "marked";
-import { gfmHeadingId as Ue } from "marked-gfm-heading-id";
-import { Editor as Pe, EditorContent as Be } from "@tiptap/vue-3";
-import je from "@tiptap/starter-kit";
-import He from "@tiptap/extension-link";
-import { Markdown as qe } from "tiptap-markdown";
-import { scalePoint as ze } from "d3-scale";
-import { diffLines as Ke } from "diff";
-const pe = Symbol("markdown-track");
-function rn(e) {
-  return xe(pe, e), e;
+import { provide as Ie, inject as Le, ref as $, onMounted as H, onBeforeUnmount as J, openBlock as u, createElementBlock as m, createElementVNode as p, toDisplayString as C, Fragment as D, renderList as ne, createCommentVNode as M, watch as F, nextTick as De, shallowRef as Oe, normalizeClass as I, withDirectives as ue, createVNode as Ne, unref as Re, vShow as de, computed as k, createTextVNode as Ve, defineAsyncComponent as Ue, createBlock as Y, resolveDynamicComponent as Pe } from "vue";
+import { marked as _e } from "marked";
+import { gfmHeadingId as Be } from "marked-gfm-heading-id";
+import { Editor as je, EditorContent as He } from "@tiptap/vue-3";
+import qe from "@tiptap/starter-kit";
+import ze from "@tiptap/extension-link";
+import { Markdown as Ke } from "tiptap-markdown";
+import { scalePoint as Ye } from "d3-scale";
+import { diffLines as Fe } from "diff";
+const ye = Symbol("markdown-track");
+function dn(e) {
+  return Ie(ye, e), e;
 }
-function _e() {
-  const e = Me(pe, null);
+function ge() {
+  const e = Le(ye, null);
   if (!e)
     throw new Error(
       "useMarkdownTrack(): no markdown-track provider found. Call provideMarkdownTrack(createMarkdownTrack(...)) in a parent component."
@@ -49,31 +49,31 @@ function P(e, s, o = {}) {
   }
   return c;
 }
-const Ye = { class: "mt-library" }, Fe = {
+const We = { class: "mt-library" }, Je = {
   key: 0,
-  class: "mt-library__status"
-}, We = {
-  key: 1,
-  class: "mt-library__status mt-library__status--error"
-}, Je = {
-  key: 2,
   class: "mt-library__status"
 }, Ge = {
+  key: 1,
+  class: "mt-library__status mt-library__status--error"
+}, Qe = {
+  key: 2,
+  class: "mt-library__status"
+}, Xe = {
   key: 3,
   class: "mt-library__list"
-}, Qe = ["onClick"], Xe = { class: "mt-library__title" }, Ze = {
+}, Ze = ["onClick"], et = { class: "mt-library__title" }, tt = {
   key: 0,
   class: "mt-library__filename"
-}, cn = {
+}, mn = {
   __name: "MarkdownLibrary",
   emits: ["select"],
   setup(e, { emit: s }) {
-    const o = s, t = _e(), { hooks: n } = t, c = $([]), r = $(!0), h = $(""), g = (i) => i.title || i.filename;
+    const o = s, t = ge(), { hooks: n } = t, c = $([]), r = $(!0), h = $(""), g = (i) => i.title || i.filename;
     return H(async () => {
       P(t, U.ENTER_LIBRARY);
       try {
         const i = await n.listDocuments();
-        c.value = i.filter((f) => n.can("view", f)).sort((f, _) => g(f).localeCompare(g(_), void 0, { sensitivity: "base", numeric: !0 }));
+        c.value = i.filter((v) => n.can("view", v)).sort((v, _) => g(v).localeCompare(g(_), void 0, { sensitivity: "base", numeric: !0 }));
       } catch (i) {
         h.value = (i == null ? void 0 : i.message) || String(i);
       } finally {
@@ -81,10 +81,10 @@ const Ye = { class: "mt-library" }, Fe = {
       }
     }), J(() => {
       P(t, U.LEAVE_LIBRARY);
-    }), (i, f) => (u(), v("div", Ye, [
-      f[0] || (f[0] = p("h2", { class: "mt-library__heading" }, "Documents", -1)),
-      r.value ? (u(), v("p", Fe, "Loading…")) : h.value ? (u(), v("p", We, C(h.value), 1)) : c.value.length ? (u(), v("ul", Ge, [
-        (u(!0), v(D, null, te(c.value, (_) => (u(), v("li", {
+    }), (i, v) => (u(), m("div", We, [
+      v[0] || (v[0] = p("h2", { class: "mt-library__heading" }, "Documents", -1)),
+      r.value ? (u(), m("p", Je, "Loading…")) : h.value ? (u(), m("p", Ge, C(h.value), 1)) : c.value.length ? (u(), m("ul", Xe, [
+        (u(!0), m(D, null, ne(c.value, (_) => (u(), m("li", {
           key: _.id,
           class: "mt-library__item"
         }, [
@@ -93,27 +93,27 @@ const Ye = { class: "mt-library" }, Fe = {
             class: "mt-library__link",
             onClick: (A) => o("select", _.id)
           }, [
-            p("span", Xe, C(g(_)), 1),
-            _.title && _.title !== _.filename ? (u(), v("span", Ze, C(_.filename), 1)) : x("", !0)
-          ], 8, Qe)
+            p("span", et, C(g(_)), 1),
+            _.title && _.title !== _.filename ? (u(), m("span", tt, C(_.filename), 1)) : M("", !0)
+          ], 8, Ze)
         ]))), 128))
-      ])) : (u(), v("p", Je, "No documents available."))
+      ])) : (u(), m("p", Qe, "No documents available."))
     ]));
   }
 };
-function et(e) {
+function nt(e) {
   if (e == null) return null;
   const s = e instanceof Date ? e.getTime() : new Date(e).getTime();
   return Number.isNaN(s) ? null : s;
 }
-function tt(e) {
-  const s = et(e);
+function st(e) {
+  const s = nt(e);
   return s == null ? () => !0 : (o) => {
     const t = o instanceof Date ? o.getTime() : new Date(o).getTime();
     return Number.isNaN(t) ? !0 : t >= s;
   };
 }
-function ye(e) {
+function he(e) {
   if (typeof e != "string") return null;
   const s = [];
   let o = null;
@@ -131,8 +131,8 @@ function ye(e) {
   }
   return s.length === 1 ? s[0] : null;
 }
-const ge = /^\s*<!--\s*Access:\s*(.*?)\s*-->\s*$/i;
-function* he(e) {
+const ke = /^\s*<!--\s*Access:\s*(.*?)\s*-->\s*$/i;
+function* be(e) {
   let s = null;
   for (const o of e.split(`
 `)) {
@@ -145,55 +145,55 @@ function* he(e) {
     yield { line: t, fenced: s !== null };
   }
 }
-function nt(e) {
+function ot(e) {
   return e.split(",").map((s) => s.trim()).filter(Boolean);
 }
 function W(e) {
   if (typeof e != "string") return null;
   let s = null;
-  for (const { line: o, fenced: t } of he(e)) {
+  for (const { line: o, fenced: t } of be(e)) {
     if (t) continue;
-    const n = o.match(ge);
-    n && (s = nt(n[1]));
+    const n = o.match(ke);
+    n && (s = ot(n[1]));
   }
   return s;
 }
-function st(e) {
+function at(e) {
   const s = [];
-  for (const { line: o, fenced: t } of he(e))
-    !t && ge.test(o) || s.push(o);
+  for (const { line: o, fenced: t } of be(e))
+    !t && ke.test(o) || s.push(o);
   return s.join(`
 `);
 }
-function ot(e, s) {
+function lt(e, s) {
   const o = typeof e == "string" ? e : "", t = /\r\n/.test(o) ? `\r
 ` : `
-`, n = st(o).replace(/\s+$/, "").split(`
+`, n = at(o).replace(/\s+$/, "").split(`
 `).join(t);
   if (s == null)
     return n ? `${n}${t}` : "";
   const c = `<!-- Access: ${s.join(", ")} -->`;
   return (n ? `${n}${t}${t}` : "") + `${c}${t}`;
 }
-function at(e, s) {
+function it(e, s) {
   if (e === null || s === null) return e === s;
   if (e.length !== s.length) return !1;
   const o = [...e].sort(), t = [...s].sort();
   return o.every((n, c) => n === t[c]);
 }
-function lt(e, s, o) {
+function rt(e, s, o) {
   const t = W(e), n = W(s);
-  return o || at(t, n) ? { content: e, reverted: !1 } : { content: ot(e, n), reverted: !0 };
+  return o || it(t, n) ? { content: e, reverted: !1 } : { content: lt(e, n), reverted: !0 };
 }
-fe.use(Ue());
-function it(e) {
-  return typeof e != "string" || e.length === 0 ? "" : fe.parse(e, { gfm: !0, breaks: !1 });
+_e.use(Be());
+function ct(e) {
+  return typeof e != "string" || e.length === 0 ? "" : _e.parse(e, { gfm: !0, breaks: !1 });
 }
-let ue = !1;
-function rt(e) {
+let me = !1;
+function ut(e) {
   return typeof e == "string" && /(^|\n)\s*```mermaid\b/.test(e);
 }
-async function ct(e) {
+async function dt(e) {
   if (!e) return;
   const s = e.querySelectorAll("pre code.language-mermaid");
   if (!s.length) return;
@@ -204,7 +204,7 @@ async function ct(e) {
     console.warn("markdown-track: 'mermaid' is not installed; leaving diagrams as code.", t);
     return;
   }
-  ue || (o.initialize({ startOnLoad: !1, securityLevel: "strict" }), ue = !0);
+  me || (o.initialize({ startOnLoad: !1, securityLevel: "strict" }), me = !0);
   for (const t of s) {
     const n = t.closest("pre");
     if (!n) continue;
@@ -217,27 +217,27 @@ async function ct(e) {
     console.warn("markdown-track: mermaid render error", t);
   }
 }
-const ut = ["innerHTML"], dt = {
+const mt = ["innerHTML"], vt = {
   __name: "MarkdownRenderer",
   props: { content: { type: String, default: "" } },
   setup(e) {
     const s = e, o = $(null), t = $("");
     async function n() {
-      t.value = it(s.content), await Ie(), o.value && rt(s.content) && await ct(o.value);
+      t.value = ct(s.content), await De(), o.value && ut(s.content) && await dt(o.value);
     }
-    return H(n), F(() => s.content, n), (c, r) => (u(), v("div", {
+    return H(n), F(() => s.content, n), (c, r) => (u(), m("div", {
       ref_key: "root",
       ref: o,
       class: "mt-markdown",
       innerHTML: t.value
-    }, null, 8, ut));
+    }, null, 8, mt));
   }
 };
-function mt() {
+function ft() {
   return [
-    je,
-    He.configure({ openOnClick: !1 }),
-    qe.configure({
+    qe,
+    ze.configure({ openOnClick: !1 }),
+    Ke.configure({
       html: !1,
       tightLists: !0,
       breaks: !1,
@@ -246,25 +246,25 @@ function mt() {
     })
   ];
 }
-function de(e) {
+function ve(e) {
   var s, o, t;
   return ((t = (o = (s = e == null ? void 0 : e.storage) == null ? void 0 : s.markdown) == null ? void 0 : o.getMarkdown) == null ? void 0 : t.call(o)) ?? "";
 }
-const vt = { class: "mt-editor" }, ft = {
+const pt = { class: "mt-editor" }, _t = {
   key: 0,
   class: "mt-editor__toolbar"
-}, pt = ["value"], _t = {
+}, yt = ["value"], gt = {
   __name: "MarkdownEditor",
   props: { modelValue: { type: String, default: "" } },
   emits: ["update:modelValue"],
   setup(e, { emit: s }) {
-    const o = e, t = s, n = Le(null), c = $(!1);
+    const o = e, t = s, n = Oe(null), c = $(!1);
     H(() => {
-      n.value = new Pe({
-        extensions: mt(),
+      n.value = new je({
+        extensions: ft(),
         content: o.modelValue,
         // tiptap-markdown parses the markdown string
-        onUpdate: ({ editor: g }) => t("update:modelValue", de(g))
+        onUpdate: ({ editor: g }) => t("update:modelValue", ve(g))
       });
     }), J(() => {
       var g;
@@ -272,73 +272,73 @@ const vt = { class: "mt-editor" }, ft = {
     }), F(
       () => o.modelValue,
       (g) => {
-        n.value && g !== de(n.value) && n.value.commands.setContent(g, !1);
+        n.value && g !== ve(n.value) && n.value.commands.setContent(g, !1);
       }
     );
     const r = (g) => n.value && g(n.value.chain().focus()), h = (g, i) => {
-      var f;
-      return ((f = n.value) == null ? void 0 : f.isActive(g, i)) ?? !1;
+      var v;
+      return ((v = n.value) == null ? void 0 : v.isActive(g, i)) ?? !1;
     };
-    return (g, i) => (u(), v("div", vt, [
-      n.value ? (u(), v("div", ft, [
+    return (g, i) => (u(), m("div", pt, [
+      n.value ? (u(), m("div", _t, [
         p("button", {
           type: "button",
-          class: M(["mt-editor__btn", { "is-active": h("heading", { level: 1 }) }]),
-          onClick: i[0] || (i[0] = (f) => r((_) => _.toggleHeading({ level: 1 }).run()))
+          class: I(["mt-editor__btn", { "is-active": h("heading", { level: 1 }) }]),
+          onClick: i[0] || (i[0] = (v) => r((_) => _.toggleHeading({ level: 1 }).run()))
         }, "H1", 2),
         p("button", {
           type: "button",
-          class: M(["mt-editor__btn", { "is-active": h("heading", { level: 2 }) }]),
-          onClick: i[1] || (i[1] = (f) => r((_) => _.toggleHeading({ level: 2 }).run()))
+          class: I(["mt-editor__btn", { "is-active": h("heading", { level: 2 }) }]),
+          onClick: i[1] || (i[1] = (v) => r((_) => _.toggleHeading({ level: 2 }).run()))
         }, "H2", 2),
         p("button", {
           type: "button",
-          class: M(["mt-editor__btn", { "is-active": h("bold") }]),
-          onClick: i[2] || (i[2] = (f) => r((_) => _.toggleBold().run()))
+          class: I(["mt-editor__btn", { "is-active": h("bold") }]),
+          onClick: i[2] || (i[2] = (v) => r((_) => _.toggleBold().run()))
         }, [...i[7] || (i[7] = [
           p("b", null, "B", -1)
         ])], 2),
         p("button", {
           type: "button",
-          class: M(["mt-editor__btn", { "is-active": h("italic") }]),
-          onClick: i[3] || (i[3] = (f) => r((_) => _.toggleItalic().run()))
+          class: I(["mt-editor__btn", { "is-active": h("italic") }]),
+          onClick: i[3] || (i[3] = (v) => r((_) => _.toggleItalic().run()))
         }, [...i[8] || (i[8] = [
           p("i", null, "I", -1)
         ])], 2),
         p("button", {
           type: "button",
-          class: M(["mt-editor__btn", { "is-active": h("bulletList") }]),
-          onClick: i[4] || (i[4] = (f) => r((_) => _.toggleBulletList().run()))
+          class: I(["mt-editor__btn", { "is-active": h("bulletList") }]),
+          onClick: i[4] || (i[4] = (v) => r((_) => _.toggleBulletList().run()))
         }, "• List", 2),
         p("button", {
           type: "button",
-          class: M(["mt-editor__btn", { "is-active": h("codeBlock") }]),
-          onClick: i[5] || (i[5] = (f) => r((_) => _.toggleCodeBlock().run()))
+          class: I(["mt-editor__btn", { "is-active": h("codeBlock") }]),
+          onClick: i[5] || (i[5] = (v) => r((_) => _.toggleCodeBlock().run()))
         }, "Code", 2),
         i[9] || (i[9] = p("span", { class: "mt-editor__spacer" }, null, -1)),
         p("button", {
           type: "button",
-          class: M(["mt-editor__btn", { "is-active": c.value }]),
-          onClick: i[6] || (i[6] = (f) => c.value = !c.value)
+          class: I(["mt-editor__btn", { "is-active": c.value }]),
+          onClick: i[6] || (i[6] = (v) => c.value = !c.value)
         }, "Source", 2)
-      ])) : x("", !0),
-      re(De(Oe(Be), {
+      ])) : M("", !0),
+      ue(Ne(Re(He), {
         editor: n.value,
         class: "mt-editor__content"
       }, null, 8, ["editor"]), [
-        [ce, !c.value]
+        [de, !c.value]
       ]),
-      re(p("textarea", {
+      ue(p("textarea", {
         class: "mt-editor__source",
         value: e.modelValue,
         readonly: "",
         spellcheck: "false"
-      }, null, 8, pt), [
-        [ce, c.value]
+      }, null, 8, yt), [
+        [de, c.value]
       ])
     ]));
   }
-}, yt = ["width"], gt = ["x2"], ht = ["transform", "onClick"], kt = {
+}, ht = ["width"], kt = ["x2"], bt = ["transform", "onClick"], wt = {
   key: 0,
   class: "mt-timeline__dot",
   x: "-6.5",
@@ -346,10 +346,10 @@ const vt = { class: "mt-editor" }, ft = {
   width: "13",
   height: "13",
   transform: "rotate(45)"
-}, bt = ["r"], wt = {
+}, Ct = ["r"], $t = {
   key: 0,
   class: "mt-timeline__caption"
-}, Ct = ["disabled"], $t = ["disabled"], Et = { class: "mt-timeline__label" }, At = { key: 0 }, V = 24, Tt = 44, ee = 22, St = {
+}, Et = ["disabled"], At = ["disabled"], Tt = { class: "mt-timeline__label" }, St = { key: 0 }, V = 24, xt = 44, te = 22, Mt = {
   __name: "ChangeTimeline",
   props: {
     // [{ id, kind: 'accepted'|'pending', at, label, author? }]
@@ -366,10 +366,10 @@ const vt = { class: "mt-editor" }, ft = {
       }), r.observe(n.value));
     }), J(() => r == null ? void 0 : r.disconnect());
     const h = k(
-      () => ze().domain(o.points.map((w) => w.id)).range([V, Math.max(V + 1, c.value - V)]).padding(0.5)
+      () => Ye().domain(o.points.map((w) => w.id)).range([V, Math.max(V + 1, c.value - V)]).padding(0.5)
     ), g = k(
       () => o.points.map((w) => ({ ...w, x: h.value(w.id) ?? V }))
-    ), i = k(() => o.points.findIndex((w) => w.id === o.selectedId)), f = k(() => o.points[i.value] || null);
+    ), i = k(() => o.points.findIndex((w) => w.id === o.selectedId)), v = k(() => o.points[i.value] || null);
     function _(w) {
       const l = i.value + w;
       l >= 0 && l < o.points.length && t("select", o.points[l].id);
@@ -381,14 +381,14 @@ const vt = { class: "mt-editor" }, ft = {
         return String(w);
       }
     };
-    return (w, l) => (u(), v("div", {
+    return (w, l) => (u(), m("div", {
       ref_key: "root",
       ref: n,
       class: "mt-timeline"
     }, [
-      (u(), v("svg", {
+      (u(), m("svg", {
         width: c.value,
-        height: Tt,
+        height: xt,
         class: "mt-timeline__svg",
         role: "group",
         "aria-label": "Change timeline"
@@ -396,52 +396,52 @@ const vt = { class: "mt-editor" }, ft = {
         p("line", {
           class: "mt-timeline__track",
           x1: V,
-          y1: ee,
+          y1: te,
           x2: Math.max(V, c.value - V),
-          y2: ee
-        }, null, 8, gt),
-        (u(!0), v(D, null, te(g.value, (d) => (u(), v("g", {
+          y2: te
+        }, null, 8, kt),
+        (u(!0), m(D, null, ne(g.value, (d) => (u(), m("g", {
           key: d.id,
-          class: M(["mt-timeline__point", [`mt-timeline__point--${d.kind}`, { "is-selected": d.id === e.selectedId }]]),
-          transform: `translate(${d.x},${ee})`,
+          class: I(["mt-timeline__point", [`mt-timeline__point--${d.kind}`, { "is-selected": d.id === e.selectedId }]]),
+          transform: `translate(${d.x},${te})`,
           onClick: (b) => t("select", d.id)
         }, [
           l[2] || (l[2] = p("circle", {
             r: "11",
             class: "mt-timeline__hit"
           }, null, -1)),
-          d.kind === "summary" ? (u(), v("rect", kt)) : (u(), v("circle", {
+          d.kind === "summary" ? (u(), m("rect", wt)) : (u(), m("circle", {
             key: 1,
             r: d.kind === "accepted" ? 7 : 4.5,
             class: "mt-timeline__dot"
-          }, null, 8, bt)),
+          }, null, 8, Ct)),
           p("title", null, C(d.label) + " — " + C(A(d.at)), 1)
-        ], 10, ht))), 128))
-      ], 8, yt)),
-      f.value ? (u(), v("div", wt, [
+        ], 10, bt))), 128))
+      ], 8, ht)),
+      v.value ? (u(), m("div", $t, [
         p("button", {
           type: "button",
           class: "mt-editor__btn",
           disabled: i.value <= 0,
           onClick: l[0] || (l[0] = (d) => _(-1))
-        }, "‹", 8, Ct),
+        }, "‹", 8, Et),
         p("button", {
           type: "button",
           class: "mt-editor__btn",
           disabled: i.value >= e.points.length - 1,
           onClick: l[1] || (l[1] = (d) => _(1))
-        }, "›", 8, $t),
-        p("span", Et, [
-          p("strong", null, C(f.value.label), 1),
-          p("span", null, " · " + C(A(f.value.at)), 1),
-          f.value.author ? (u(), v("span", At, " · " + C(f.value.author.email), 1)) : x("", !0)
+        }, "›", 8, At),
+        p("span", Tt, [
+          p("strong", null, C(v.value.label), 1),
+          p("span", null, " · " + C(A(v.value.at)), 1),
+          v.value.author ? (u(), m("span", St, " · " + C(v.value.author.email), 1)) : M("", !0)
         ])
-      ])) : x("", !0)
+      ])) : M("", !0)
     ], 512));
   }
 };
-function xt(e, s) {
-  const o = Ke(e ?? "", s ?? ""), t = [];
+function It(e, s) {
+  const o = Fe(e ?? "", s ?? ""), t = [];
   for (const n of o) {
     const c = n.added ? "added" : n.removed ? "removed" : "context", r = n.value.split(`
 `);
@@ -450,71 +450,71 @@ function xt(e, s) {
   }
   return t;
 }
-function Mt(e) {
+function Lt(e) {
   let s = 0, o = 0;
   for (const t of e)
     t.type === "added" ? s += 1 : t.type === "removed" && (o += 1);
   return { added: s, removed: o };
 }
-const It = { class: "mt-diff" }, Lt = { class: "mt-diff__stats" }, Dt = { class: "mt-diff__stat mt-diff__stat--added" }, Ot = { class: "mt-diff__stat mt-diff__stat--removed" }, Nt = {
+const Dt = { class: "mt-diff" }, Ot = { class: "mt-diff__stats" }, Nt = { class: "mt-diff__stat mt-diff__stat--added" }, Rt = { class: "mt-diff__stat mt-diff__stat--removed" }, Vt = {
   key: 0,
   class: "mt-library__status"
-}, Rt = {
+}, Ut = {
   key: 1,
   class: "mt-diff__body"
-}, Vt = { class: "mt-diff__gutter" }, Ut = { class: "mt-diff__text" }, Pt = {
+}, Pt = { class: "mt-diff__gutter" }, Bt = { class: "mt-diff__text" }, jt = {
   __name: "DiffView",
   props: {
     oldText: { type: String, default: "" },
     newText: { type: String, default: "" }
   },
   setup(e) {
-    const s = e, o = k(() => xt(s.oldText, s.newText)), t = k(() => Mt(o.value)), n = k(() => t.value.added > 0 || t.value.removed > 0), c = (r) => r === "added" ? "+" : r === "removed" ? "−" : " ";
-    return (r, h) => (u(), v("div", It, [
-      p("div", Lt, [
-        p("span", Dt, "+" + C(t.value.added), 1),
-        p("span", Ot, "−" + C(t.value.removed), 1)
+    const s = e, o = k(() => It(s.oldText, s.newText)), t = k(() => Lt(o.value)), n = k(() => t.value.added > 0 || t.value.removed > 0), c = (r) => r === "added" ? "+" : r === "removed" ? "−" : " ";
+    return (r, h) => (u(), m("div", Dt, [
+      p("div", Ot, [
+        p("span", Nt, "+" + C(t.value.added), 1),
+        p("span", Rt, "−" + C(t.value.removed), 1)
       ]),
-      n.value ? (u(), v("pre", Rt, [
-        (u(!0), v(D, null, te(o.value, (g, i) => (u(), v("span", {
+      n.value ? (u(), m("pre", Ut, [
+        (u(!0), m(D, null, ne(o.value, (g, i) => (u(), m("span", {
           key: i,
-          class: M(["mt-diff__line", `mt-diff__line--${g.type}`])
+          class: I(["mt-diff__line", `mt-diff__line--${g.type}`])
         }, [
-          p("span", Vt, C(c(g.type)), 1),
-          p("span", Ut, C(g.text), 1),
-          h[0] || (h[0] = Ne(`
+          p("span", Pt, C(c(g.type)), 1),
+          p("span", Bt, C(g.text), 1),
+          h[0] || (h[0] = Ve(`
 `, -1))
         ], 2))), 128))
-      ])) : (u(), v("p", Nt, "No changes from the accepted version."))
+      ])) : (u(), m("p", Vt, "No changes from the accepted version."))
     ]));
   }
-}, Bt = { class: "mt-doc" }, jt = { class: "mt-doc__bar" }, Ht = { class: "mt-doc__title" }, qt = {
+}, Ht = { class: "mt-doc" }, qt = { class: "mt-doc__bar" }, zt = { class: "mt-doc__title" }, Kt = {
   key: 0,
   class: "mt-doc__pending"
-}, zt = { class: "mt-doc__confirm" }, Kt = ["disabled"], Yt = ["title"], Ft = ["disabled"], Wt = {
+}, Yt = { class: "mt-doc__confirm" }, Ft = ["disabled"], Wt = ["title"], Jt = ["disabled", "title"], Gt = ["disabled"], Qt = {
   key: 0,
   class: "mt-library__status"
-}, Jt = {
+}, Xt = {
   key: 1,
   class: "mt-library__status mt-library__status--error"
-}, Gt = {
+}, Zt = {
   key: 2,
   class: "mt-library__status"
-}, Qt = {
+}, en = {
   key: 0,
   class: "mt-doc__note"
-}, un = {
+}, vn = {
   __name: "DocumentView",
   props: { docId: { type: String, required: !0 } },
   emits: ["back"],
   setup(e, { emit: s }) {
-    const o = Re(() => import("./MarkdownEditorVMd-B_zVhYSN.js")), t = e, n = s, c = _e(), { hooks: r, options: h } = c, g = k(
-      () => h.editor === "tiptap" ? _t : o
-    ), i = $([]), f = $([]), _ = $(!0), A = $(""), w = $("view"), l = $(""), d = $(!1), b = $(""), T = $(null), S = $(!1), I = $(!1), B = k(() => tt(h.hideHistoryBefore)), G = k(
+    const o = Ue(() => import("./MarkdownEditorVMd-B_zVhYSN.js")), t = e, n = s, c = ge(), { hooks: r, options: h } = c, g = k(
+      () => h.editor === "tiptap" ? gt : o
+    ), i = $([]), v = $([]), _ = $(!0), A = $(""), w = $("view"), l = $(""), d = $(!1), b = $(""), T = $(null), S = $(!1), L = $(!1), B = k(() => st(h.hideHistoryBefore)), G = k(
       () => i.value.filter((a) => B.value(a.acceptedAt))
     ), q = k(
-      () => f.value.filter((a) => B.value(a.savedAt))
-    ), ne = k(() => G.value[G.value.length - 1] || null), se = k(() => q.value[q.value.length - 1] || null), O = k(() => {
+      () => v.value.filter((a) => B.value(a.savedAt))
+    ), se = k(() => G.value[G.value.length - 1] || null), oe = k(() => q.value[q.value.length - 1] || null), O = k(() => {
       const a = [
         ...G.value.map((y) => ({
           id: y.id,
@@ -532,61 +532,65 @@ const It = { class: "mt-diff" }, Lt = { class: "mt-diff__stats" }, Dt = { class:
           label: `Pending #${y.seq}`,
           author: y.author
         }))
-      ], m = se.value;
-      return m && a.push({
+      ], f = oe.value;
+      return f && a.push({
         id: "all-changes",
         kind: "summary",
-        at: m.savedAt,
-        content: m.content,
+        at: f.savedAt,
+        content: f.content,
         label: "All changes",
-        author: m.author
+        author: f.author
       }), a;
-    }), L = k(
+    }), x = k(
       () => O.value.find((a) => a.id === T.value) || O.value[O.value.length - 1] || null
     ), Q = k(() => {
       var a;
-      return ((a = L.value) == null ? void 0 : a.content) ?? "";
-    }), ke = k(() => {
-      var y, E;
-      const a = L.value;
-      if (!a) return "";
-      if (a.kind === "summary") return ((y = ne.value) == null ? void 0 : y.content) ?? "";
-      const m = O.value.findIndex((j) => j.id === a.id);
-      return ((E = O.value[m - 1]) == null ? void 0 : E.content) ?? "";
-    }), be = k(() => {
-      var a;
-      return ye(((a = ne.value) == null ? void 0 : a.content) || "") || t.docId;
-    }), oe = k(
-      () => {
-        var a, m;
-        return ((a = f.value[f.value.length - 1]) == null ? void 0 : a.content) ?? ((m = i.value[i.value.length - 1]) == null ? void 0 : m.content) ?? "";
-      }
-    ), z = k(() => ({ id: t.docId, access: W(oe.value) })), N = k(() => r.can("view", z.value)), we = k(() => N.value && r.can("edit", z.value)), Ce = k(() => N.value && r.can("accept", z.value)), X = k(() => q.value.length), Z = k(() => (t.docId || "document").replace(/\.md$/i, "")), ae = k(() => {
-      const a = L.value;
-      if ((a == null ? void 0 : a.kind) === "summary") return `${Z.value}.all-changes.md`;
-      if ((a == null ? void 0 : a.kind) === "pending") {
-        const m = String(a.label).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-        return `${Z.value}.${m}.md`;
-      }
-      return `${Z.value}.md`;
-    });
-    function $e() {
-      const a = new Blob([Q.value ?? ""], { type: "text/markdown;charset=utf-8" }), m = URL.createObjectURL(a), y = document.createElement("a");
-      y.href = m, y.download = ae.value, document.body.appendChild(y), y.click(), y.remove(), URL.revokeObjectURL(m);
-    }
-    function le() {
+      return ((a = x.value) == null ? void 0 : a.content) ?? "";
+    }), ae = k(() => {
       var y;
-      const a = O.value, m = a.find((E) => E.kind === "summary");
-      T.value = ((y = m ?? a[a.length - 1]) == null ? void 0 : y.id) ?? null;
+      const a = O.value;
+      return ((y = a.find((E) => E.kind === "summary") ?? a[a.length - 1]) == null ? void 0 : y.id) ?? null;
+    }), X = k(
+      () => !!x.value && x.value.id === ae.value
+    ), we = k(() => {
+      var y, E;
+      const a = x.value;
+      if (!a) return "";
+      if (a.kind === "summary") return ((y = se.value) == null ? void 0 : y.content) ?? "";
+      const f = O.value.findIndex((j) => j.id === a.id);
+      return ((E = O.value[f - 1]) == null ? void 0 : E.content) ?? "";
+    }), Ce = k(() => {
+      var a;
+      return he(((a = se.value) == null ? void 0 : a.content) || "") || t.docId;
+    }), le = k(
+      () => {
+        var a, f;
+        return ((a = v.value[v.value.length - 1]) == null ? void 0 : a.content) ?? ((f = i.value[i.value.length - 1]) == null ? void 0 : f.content) ?? "";
+      }
+    ), z = k(() => ({ id: t.docId, access: W(le.value) })), N = k(() => r.can("view", z.value)), $e = k(() => N.value && r.can("edit", z.value)), Ee = k(() => N.value && r.can("accept", z.value)), Z = k(() => q.value.length), ee = k(() => (t.docId || "document").replace(/\.md$/i, "")), ie = k(() => {
+      const a = x.value;
+      if ((a == null ? void 0 : a.kind) === "summary") return `${ee.value}.all-changes.md`;
+      if ((a == null ? void 0 : a.kind) === "pending") {
+        const f = String(a.label).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+        return `${ee.value}.${f}.md`;
+      }
+      return `${ee.value}.md`;
+    });
+    function Ae() {
+      const a = new Blob([Q.value ?? ""], { type: "text/markdown;charset=utf-8" }), f = URL.createObjectURL(a), y = document.createElement("a");
+      y.href = f, y.download = ie.value, document.body.appendChild(y), y.click(), y.remove(), URL.revokeObjectURL(f);
     }
-    async function ie() {
-      _.value = !0, A.value = "", w.value = "view", b.value = "", S.value = !1, I.value = !1;
+    function re() {
+      T.value = ae.value;
+    }
+    async function ce() {
+      _.value = !0, A.value = "", w.value = "view", b.value = "", S.value = !1, L.value = !1;
       try {
-        const [a, m] = await Promise.all([
+        const [a, f] = await Promise.all([
           r.listAcceptedStates(t.docId),
           r.listPendingChanges(t.docId)
         ]);
-        i.value = a, f.value = m, le();
+        i.value = a, v.value = f, re();
       } catch (a) {
         A.value = (a == null ? void 0 : a.message) || String(a);
       } finally {
@@ -594,144 +598,146 @@ const It = { class: "mt-diff" }, Lt = { class: "mt-diff__stats" }, Dt = { class:
       }
     }
     H(() => {
-      P(c, U.SELECT_DOCUMENT, { docId: t.docId }), ie();
-    }), F(() => t.docId, (a, m) => {
-      m && P(c, U.LEAVE_DOCUMENT, { docId: m }), P(c, U.SELECT_DOCUMENT, { docId: a }), ie();
+      P(c, U.SELECT_DOCUMENT, { docId: t.docId }), ce();
+    }), F(() => t.docId, (a, f) => {
+      f && P(c, U.LEAVE_DOCUMENT, { docId: f }), P(c, U.SELECT_DOCUMENT, { docId: a }), ce();
     }), J(() => {
       P(c, U.LEAVE_DOCUMENT, { docId: t.docId });
     }), F(T, () => {
-      I.value = !1;
+      L.value = !1;
     });
-    function Ee() {
+    function Te() {
       var a;
-      l.value = ((a = L.value) == null ? void 0 : a.content) ?? "", b.value = "", S.value = !1, I.value = !1, w.value = "edit";
+      X.value && (l.value = ((a = x.value) == null ? void 0 : a.content) ?? "", b.value = "", S.value = !1, L.value = !1, w.value = "edit");
     }
-    function Ae() {
+    function Se() {
       w.value = "view";
     }
-    async function Te() {
+    async function xe() {
       d.value = !0, A.value = "";
       try {
-        const a = r.can("set-access", z.value), { content: m, reverted: y } = lt(l.value, oe.value, a), E = await r.savePendingChange(t.docId, { content: m });
-        P(c, U.SAVE_DOCUMENT, { docId: t.docId }), f.value = await r.listPendingChanges(t.docId), le(), b.value = y ? "Saved. The access list can only be changed by an administrator, so that change was reverted." : `Saved pending change (seq ${E.seq}).`, w.value = "view";
+        const a = r.can("set-access", z.value), { content: f, reverted: y } = rt(l.value, le.value, a), E = await r.savePendingChange(t.docId, { content: f });
+        P(c, U.SAVE_DOCUMENT, { docId: t.docId }), v.value = await r.listPendingChanges(t.docId), re(), b.value = y ? "Saved. The access list can only be changed by an administrator, so that change was reverted." : `Saved pending change (seq ${E.seq}).`, w.value = "view";
       } catch (a) {
         A.value = (a == null ? void 0 : a.message) || String(a);
       } finally {
         d.value = !1;
       }
     }
-    async function Se() {
+    async function Me() {
       var y;
-      const a = L.value;
+      const a = x.value;
       if (!a || a.kind !== "pending" && a.kind !== "summary") return;
-      const m = a.kind === "summary" ? ((y = se.value) == null ? void 0 : y.id) ?? null : a.id;
+      const f = a.kind === "summary" ? ((y = oe.value) == null ? void 0 : y.id) ?? null : a.id;
       d.value = !0, A.value = "";
       try {
-        const E = await r.acceptChanges(t.docId, { upToChangeId: m }), [j, K] = await Promise.all([
+        const E = await r.acceptChanges(t.docId, { upToChangeId: f }), [j, K] = await Promise.all([
           r.listAcceptedStates(t.docId),
           r.listPendingChanges(t.docId)
         ]);
-        i.value = j, f.value = K, T.value = E.id, b.value = "Accepted — new baseline established.", I.value = !1;
+        i.value = j, v.value = K, T.value = E.id, b.value = "Accepted — new baseline established.", L.value = !1;
       } catch (E) {
         A.value = (E == null ? void 0 : E.message) || String(E);
       } finally {
         d.value = !1;
       }
     }
-    return (a, m) => {
+    return (a, f) => {
       var y, E, j, K;
-      return u(), v("div", Bt, [
-        p("div", jt, [
+      return u(), m("div", Ht, [
+        p("div", qt, [
           p("button", {
             type: "button",
             class: "mt-editor__btn",
-            onClick: m[0] || (m[0] = (R) => n("back"))
+            onClick: f[0] || (f[0] = (R) => n("back"))
           }, "← Library"),
-          p("h2", Ht, C(N.value ? be.value : e.docId), 1),
-          m[6] || (m[6] = p("span", { class: "mt-doc__spacer" }, null, -1)),
-          N.value && X.value ? (u(), v("span", qt, C(X.value) + " pending", 1)) : x("", !0),
-          w.value === "view" ? (u(), v(D, { key: 1 }, [
-            I.value ? (u(), v(D, { key: 0 }, [
-              p("span", zt, "Accept “" + C((y = L.value) == null ? void 0 : y.label) + "” as the new baseline?", 1),
+          p("h2", zt, C(N.value ? Ce.value : e.docId), 1),
+          f[6] || (f[6] = p("span", { class: "mt-doc__spacer" }, null, -1)),
+          N.value && Z.value ? (u(), m("span", Kt, C(Z.value) + " pending", 1)) : M("", !0),
+          w.value === "view" ? (u(), m(D, { key: 1 }, [
+            L.value ? (u(), m(D, { key: 0 }, [
+              p("span", Yt, "Accept “" + C((y = x.value) == null ? void 0 : y.label) + "” as the new baseline?", 1),
               p("button", {
                 type: "button",
                 class: "mt-editor__btn",
-                onClick: m[1] || (m[1] = (R) => I.value = !1)
+                onClick: f[1] || (f[1] = (R) => L.value = !1)
               }, "Cancel"),
               p("button", {
                 type: "button",
                 class: "mt-editor__btn is-active",
                 disabled: d.value,
-                onClick: Se
-              }, C(d.value ? "Accepting…" : "Confirm"), 9, Kt)
-            ], 64)) : (u(), v(D, { key: 1 }, [
-              N.value ? (u(), v("button", {
+                onClick: Me
+              }, C(d.value ? "Accepting…" : "Confirm"), 9, Ft)
+            ], 64)) : (u(), m(D, { key: 1 }, [
+              N.value ? (u(), m("button", {
                 key: 0,
                 type: "button",
                 class: "mt-editor__btn",
-                title: `Download ${ae.value}`,
-                onClick: $e
-              }, "Download", 8, Yt)) : x("", !0),
-              N.value && X.value ? (u(), v("button", {
+                title: `Download ${ie.value}`,
+                onClick: Ae
+              }, "Download", 8, Wt)) : M("", !0),
+              N.value && Z.value ? (u(), m("button", {
                 key: 1,
                 type: "button",
-                class: M(["mt-editor__btn", { "is-active": S.value }]),
-                onClick: m[2] || (m[2] = (R) => S.value = !S.value)
-              }, C(S.value ? "Hide changes" : "Show changes"), 3)) : x("", !0),
-              Ce.value && (((E = L.value) == null ? void 0 : E.kind) === "pending" || ((j = L.value) == null ? void 0 : j.kind) === "summary") ? (u(), v("button", {
+                class: I(["mt-editor__btn", { "is-active": S.value }]),
+                onClick: f[2] || (f[2] = (R) => S.value = !S.value)
+              }, C(S.value ? "Hide changes" : "Show changes"), 3)) : M("", !0),
+              Ee.value && (((E = x.value) == null ? void 0 : E.kind) === "pending" || ((j = x.value) == null ? void 0 : j.kind) === "summary") ? (u(), m("button", {
                 key: 2,
                 type: "button",
                 class: "mt-editor__btn",
-                onClick: m[3] || (m[3] = (R) => I.value = !0)
-              }, "Accept")) : x("", !0),
-              we.value ? (u(), v("button", {
+                onClick: f[3] || (f[3] = (R) => L.value = !0)
+              }, "Accept")) : M("", !0),
+              $e.value ? (u(), m("button", {
                 key: 3,
                 type: "button",
                 class: "mt-editor__btn",
-                onClick: Ee
-              }, "Edit")) : x("", !0)
+                disabled: !X.value,
+                title: X.value ? "Edit the current version" : "Editing builds on the current version — select the latest state (the diamond) to edit",
+                onClick: Te
+              }, "Edit", 8, Jt)) : M("", !0)
             ], 64))
-          ], 64)) : (u(), v(D, { key: 2 }, [
+          ], 64)) : (u(), m(D, { key: 2 }, [
             p("button", {
               type: "button",
               class: "mt-editor__btn",
-              onClick: Ae
+              onClick: Se
             }, "Cancel"),
             p("button", {
               type: "button",
               class: "mt-editor__btn is-active",
               disabled: d.value,
-              onClick: Te
-            }, C(d.value ? "Saving…" : "Save"), 9, Ft)
+              onClick: xe
+            }, C(d.value ? "Saving…" : "Save"), 9, Gt)
           ], 64))
         ]),
-        _.value ? (u(), v("p", Wt, "Loading…")) : A.value ? (u(), v("p", Jt, C(A.value), 1)) : N.value ? (u(), v(D, { key: 3 }, [
-          b.value ? (u(), v("p", Qt, C(b.value), 1)) : x("", !0),
-          w.value === "view" ? (u(), v(D, { key: 1 }, [
-            O.value.length > 1 ? (u(), Y(St, {
+        _.value ? (u(), m("p", Qt, "Loading…")) : A.value ? (u(), m("p", Xt, C(A.value), 1)) : N.value ? (u(), m(D, { key: 3 }, [
+          b.value ? (u(), m("p", en, C(b.value), 1)) : M("", !0),
+          w.value === "view" ? (u(), m(D, { key: 1 }, [
+            O.value.length > 1 ? (u(), Y(Mt, {
               key: 0,
               points: O.value,
-              "selected-id": (K = L.value) == null ? void 0 : K.id,
-              onSelect: m[4] || (m[4] = (R) => T.value = R)
-            }, null, 8, ["points", "selected-id"])) : x("", !0),
-            S.value ? (u(), Y(Pt, {
+              "selected-id": (K = x.value) == null ? void 0 : K.id,
+              onSelect: f[4] || (f[4] = (R) => T.value = R)
+            }, null, 8, ["points", "selected-id"])) : M("", !0),
+            S.value ? (u(), Y(jt, {
               key: 1,
-              "old-text": ke.value,
+              "old-text": we.value,
               "new-text": Q.value
-            }, null, 8, ["old-text", "new-text"])) : (u(), Y(dt, {
+            }, null, 8, ["old-text", "new-text"])) : (u(), Y(vt, {
               key: 2,
               content: Q.value
             }, null, 8, ["content"]))
-          ], 64)) : (u(), Y(Ve(g.value), {
+          ], 64)) : (u(), Y(Pe(g.value), {
             key: 2,
             modelValue: l.value,
-            "onUpdate:modelValue": m[5] || (m[5] = (R) => l.value = R)
+            "onUpdate:modelValue": f[5] || (f[5] = (R) => l.value = R)
           }, null, 8, ["modelValue"]))
-        ], 64)) : (u(), v("p", Gt, " You don’t have access to this document. "))
+        ], 64)) : (u(), m("p", Zt, " You don’t have access to this document. "))
       ]);
     };
   }
-}, me = Object.freeze([
+}, fe = Object.freeze([
   "getCurrentUser",
   "can",
   "listDocuments",
@@ -740,16 +746,16 @@ const It = { class: "mt-diff" }, Lt = { class: "mt-diff__stats" }, Dt = { class:
   "listPendingChanges",
   "savePendingChange",
   "acceptChanges"
-]), ve = Object.freeze(["onEvent"]);
-function dn(e = {}) {
-  const s = me.filter(
+]), pe = Object.freeze(["onEvent"]);
+function fn(e = {}) {
+  const s = fe.filter(
     (n) => typeof e[n] != "function"
   );
   if (s.length > 0)
     throw new Error(
       `createMarkdownTrack: missing required hook(s): ${s.join(", ")}`
     );
-  const o = ve.filter(
+  const o = pe.filter(
     (n) => e[n] != null && typeof e[n] != "function"
   );
   if (o.length > 0)
@@ -757,18 +763,18 @@ function dn(e = {}) {
       `createMarkdownTrack: optional hook(s) must be functions: ${o.join(", ")}`
     );
   const t = {};
-  for (const n of me) t[n] = e[n];
-  for (const n of ve)
+  for (const n of fe) t[n] = e[n];
+  for (const n of pe)
     typeof e[n] == "function" && (t[n] = e[n]);
   return Object.freeze({
     hooks: Object.freeze(t),
     options: Object.freeze({ ...e.options || {} })
   });
 }
-function mn(e = {}) {
+function pn(e = {}) {
   const s = e.user || { id: "dev", email: "dev@example.com", name: "Dev User" }, o = e.can || (() => !0), t = () => e.clock ? e.clock() : (/* @__PURE__ */ new Date()).toISOString(), n = /* @__PURE__ */ new Map(), c = /* @__PURE__ */ new Map(), r = /* @__PURE__ */ new Map();
   let h = 0, g = 0;
-  const i = (l) => `${l}-${++g}`, f = (l) => JSON.parse(JSON.stringify(l));
+  const i = (l) => `${l}-${++g}`, v = (l) => JSON.parse(JSON.stringify(l));
   for (const l of e.documents || [])
     n.set(l.id, { id: l.id, filename: l.filename }), c.set(l.id, [
       {
@@ -791,23 +797,23 @@ function mn(e = {}) {
     return ((d = A(l)) == null ? void 0 : d.content) ?? ((b = _(l)) == null ? void 0 : b.content) ?? "";
   };
   return {
-    getCurrentUser: () => f(s),
+    getCurrentUser: () => v(s),
     can: (l, d) => o(l, d, s),
     listDocuments: async () => [...n.values()].map((l) => {
       const d = w(l.id), b = W(d);
-      return f({
+      return v({
         ...l,
-        title: ye(d) ?? void 0,
+        title: he(d) ?? void 0,
         access: b ?? void 0
       });
     }),
     readAcceptedState: async (l) => {
       const d = _(l);
       if (!d) throw new Error(`Unknown document: ${l}`);
-      return f(d);
+      return v(d);
     },
-    listAcceptedStates: async (l) => f(c.get(l) || []),
-    listPendingChanges: async (l) => f(r.get(l) || []),
+    listAcceptedStates: async (l) => v(c.get(l) || []),
+    listPendingChanges: async (l) => v(r.get(l) || []),
     savePendingChange: async (l, { content: d }) => {
       var T;
       if (!n.has(l)) throw new Error(`Unknown document: ${l}`);
@@ -815,12 +821,12 @@ function mn(e = {}) {
         id: i("pend"),
         docId: l,
         content: d,
-        author: f(s),
+        author: v(s),
         savedAt: t(),
         seq: ++h,
         baseRef: (T = _(l)) == null ? void 0 : T.ref
       };
-      return r.get(l).push(b), f(b);
+      return r.get(l).push(b), v(b);
     },
     acceptChanges: async (l, d = {}) => {
       const b = r.get(l) || [];
@@ -831,34 +837,34 @@ function mn(e = {}) {
         id: i("acc"),
         docId: l,
         content: T.content,
-        acceptedBy: f(s),
+        acceptedBy: v(s),
         acceptedAt: t(),
         ref: `mem-${T.seq}`
       };
       c.get(l).push(S);
-      const I = b.indexOf(T);
+      const L = b.indexOf(T);
       return r.set(
         l,
-        b.slice(I + 1).map((B) => ({ ...B, baseRef: S.ref }))
-      ), f(S);
+        b.slice(L + 1).map((B) => ({ ...B, baseRef: S.ref }))
+      ), v(S);
     }
   };
 }
 export {
-  St as ChangeTimeline,
-  Pt as DiffView,
-  un as DocumentView,
-  _t as MarkdownEditor,
-  cn as MarkdownLibrary,
-  dt as MarkdownRenderer,
-  ve as OPTIONAL_HOOKS,
-  me as REQUIRED_HOOKS,
+  Mt as ChangeTimeline,
+  jt as DiffView,
+  vn as DocumentView,
+  gt as MarkdownEditor,
+  mn as MarkdownLibrary,
+  vt as MarkdownRenderer,
+  pe as OPTIONAL_HOOKS,
+  fe as REQUIRED_HOOKS,
   U as TRACK_EVENTS,
-  mn as createInMemoryHooks,
-  dn as createMarkdownTrack,
+  pn as createInMemoryHooks,
+  fn as createMarkdownTrack,
   P as emitTrackEvent,
   W as extractAccess,
-  ye as extractTitle,
-  rn as provideMarkdownTrack,
-  _e as useMarkdownTrack
+  he as extractTitle,
+  dn as provideMarkdownTrack,
+  ge as useMarkdownTrack
 };
