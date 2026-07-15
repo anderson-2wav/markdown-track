@@ -84,6 +84,18 @@ const selectedPoint = computed(
 );
 const viewedContent = computed(() => selectedPoint.value?.content ?? "");
 
+// The "current" node — the summary diamond when there are pending changes, else
+// the latest accepted state. It is the head that editing builds on, so Edit is
+// only enabled here (you can't fork an older accepted/pending state).
+const currentPointId = computed(() => {
+  const pts = points.value;
+  const summary = pts.find((p) => p.kind === "summary");
+  return (summary ?? pts[pts.length - 1])?.id ?? null;
+});
+const atCurrent = computed(
+  () => !!selectedPoint.value && selectedPoint.value.id === currentPointId.value
+);
+
 // Diff baseline depends on the node: the "All changes" summary diffs against the
 // accepted baseline (cumulative); a regular node diffs against its predecessor
 // (the delta that revision introduced).
@@ -135,10 +147,8 @@ function downloadCurrent() {
 }
 
 function selectLatest() {
-  // Default to the "All changes" summary when present, else the latest point.
-  const pts = points.value;
-  const summary = pts.find((p) => p.kind === "summary");
-  selectedId.value = (summary ?? pts[pts.length - 1])?.id ?? null;
+  // Select the current head — the summary diamond when present, else the latest point.
+  selectedId.value = currentPointId.value;
 }
 
 async function load() {
@@ -183,7 +193,9 @@ onBeforeUnmount(() => {
 watch(selectedId, () => { confirmingAccept.value = false; });
 
 function startEdit() {
-  // Edit builds on the currently-selected state (latest by default).
+  // Editing only builds on the current head, never an older accepted/pending
+  // state. The Edit button is disabled off-current; this guards direct calls.
+  if (!atCurrent.value) return;
   draft.value = selectedPoint.value?.content ?? "";
   savedNote.value = "";
   showDiff.value = false;
@@ -284,7 +296,14 @@ async function accept() {
             class="mt-editor__btn"
             @click="confirmingAccept = true"
           >Accept</button>
-          <button v-if="canEdit" type="button" class="mt-editor__btn" @click="startEdit">Edit</button>
+          <button
+            v-if="canEdit"
+            type="button"
+            class="mt-editor__btn"
+            :disabled="!atCurrent"
+            :title="atCurrent ? 'Edit the current version' : 'Editing builds on the current version — select the latest state (the diamond) to edit'"
+            @click="startEdit"
+          >Edit</button>
         </template>
       </template>
       <template v-else>
