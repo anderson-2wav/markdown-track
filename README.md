@@ -10,6 +10,22 @@ so the library stays free of any particular backend (git, a database, an API, â€
 > reserved but **not** on the public registry yet. Install from git for now
 > (see below). The API may change before the first published release.
 
+## Contents
+
+- [Install](#install)
+- [Concepts](#concepts)
+- [Quick start](#quick-start)
+- [The hooks contract](#the-hooks-contract)
+- [Event notifications](#event-notifications)
+- [Components](#components)
+- [Routing & deep-linking](#routing--deep-linking)
+- [Editor selection](#editor-selection)
+- [Hiding early history](#hiding-early-history)
+- [Access control (optional)](#access-control-optional)
+- [Styling](#styling)
+- [Development](#development)
+- [License](#license)
+
 ## Install
 
 Once published:
